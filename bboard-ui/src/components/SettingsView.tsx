@@ -1,4 +1,4 @@
-// Settings & Configuration View for PGP DApp
+// Settings & Configuration View for PGP DApp - White & Emerald Theme
 
 import React from 'react';
 import { WalletState } from '../types.js';
@@ -13,56 +13,56 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ contractAddress, set
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
       
-      <div className="glass-panel" style={{ padding: '32px' }}>
-        <h2 style={{ fontSize: '1.75rem', marginBottom: '8px' }}>⚙️ DApp Configuration & Network Settings</h2>
-        <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>
+      <div className="glass-panel" style={{ padding: '36px', background: '#ffffff' }}>
+        <h2 style={{ fontSize: '1.75rem', marginBottom: '8px', color: '#0f172a' }}>⚙️ DApp Configuration & Network Settings</h2>
+        <p style={{ color: '#64748b', marginBottom: '24px' }}>
           Configure contract endpoints, Proof Server connections, and Midnight RPC nodes.
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
           <div>
-            <label style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>
-              Deployed Contract Address Placeholder:
+            <label style={{ fontSize: '0.9rem', color: '#334155', fontWeight: '600', marginBottom: '6px', display: 'block' }}>
+              Deployed Contract Address:
             </label>
             <input
               className="input-glass"
               value={contractAddress}
               onChange={(e) => setContractAddress(e.target.value)}
-              style={{ fontFamily: 'monospace', color: '#fbbf24' }}
+              style={{ fontFamily: 'monospace', color: '#059669', fontWeight: '700', padding: '14px' }}
             />
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '4px', display: 'block' }}>
-              Replace with your 64-character hex contract address after deployment.
+            <span style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '6px', display: 'block' }}>
+              Canonical deployment ID on Midnight Preprod Remote testnet.
             </span>
           </div>
 
           <div>
-            <label style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>
+            <label style={{ fontSize: '0.9rem', color: '#334155', fontWeight: '600', marginBottom: '6px', display: 'block' }}>
               Midnight Proof Server URL:
             </label>
-            <input className="input-glass" readOnly value="http://localhost:6300" style={{ fontFamily: 'monospace' }} />
+            <input className="input-glass" readOnly value="http://localhost:6300" style={{ fontFamily: 'monospace', padding: '14px' }} />
           </div>
 
           <div>
-            <label style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>
+            <label style={{ fontSize: '0.9rem', color: '#334155', fontWeight: '600', marginBottom: '6px', display: 'block' }}>
               Midnight Preprod RPC Node Endpoint:
             </label>
-            <input className="input-glass" readOnly value="https://rpc.preprod.midnight.network" style={{ fontFamily: 'monospace' }} />
+            <input className="input-glass" readOnly value="https://rpc.preprod.midnight.network" style={{ fontFamily: 'monospace', padding: '14px' }} />
           </div>
 
           <div>
-            <label style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>
+            <label style={{ fontSize: '0.9rem', color: '#334155', fontWeight: '600', marginBottom: '6px', display: 'block' }}>
               Preprod Indexer GraphQL Endpoint:
             </label>
-            <input className="input-glass" readOnly value="https://indexer.preprod.midnight.network/api/v4/graphql" style={{ fontFamily: 'monospace' }} />
+            <input className="input-glass" readOnly value="https://indexer.preprod.midnight.network/api/v4/graphql" style={{ fontFamily: 'monospace', padding: '14px' }} />
           </div>
 
-          <div style={{ background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-glass)', borderRadius: '12px', padding: '16px' }}>
-            <h4 style={{ fontSize: '0.95rem', marginBottom: '8px', color: '#818cf8' }}>Connected Wallet Status</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-              <div>Network: <strong style={{ color: '#fff' }}>{wallet.network}</strong></div>
-              <div>Address: <strong style={{ color: '#34d399', fontFamily: 'monospace' }}>{wallet.address}</strong></div>
-              <div>Balance: <strong style={{ color: '#38bdf8' }}>{wallet.balance}</strong></div>
+          <div style={{ background: '#f0fdf4', border: '1px solid rgba(16, 185, 129, 0.25)', borderRadius: '14px', padding: '20px' }}>
+            <h4 style={{ fontSize: '1rem', marginBottom: '10px', color: '#047857', fontWeight: '700' }}>Connected Wallet Status</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.875rem', color: '#475569' }}>
+              <div>Network: <strong style={{ color: '#0f172a' }}>{wallet.network}</strong></div>
+              <div>Address: <strong style={{ color: '#059669', fontFamily: 'monospace' }}>{wallet.address}</strong></div>
+              <div>Balance: <strong style={{ color: '#047857' }}>{wallet.balance}</strong></div>
             </div>
           </div>
 
@@ -73,3 +73,5 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ contractAddress, set
     </div>
   );
 };
+
+export default SettingsView;

@@ -1,4 +1,4 @@
-// Winner Verification Portal Component for PGP DApp
+// Winner Verification Portal Component for PGP DApp - White & Emerald Theme
 
 import React, { useState } from 'react';
 import { GiveawayItem } from '../types.js';
@@ -42,35 +42,35 @@ export const WinnerVerification: React.FC<WinnerVerificationProps> = ({ giveaway
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
       
-      <div className="glass-panel" style={{ padding: '32px' }}>
-        <h2 style={{ fontSize: '1.75rem', marginBottom: '8px' }}>🏆 ZK Winner Verification & Prize Claim</h2>
-        <p style={{ color: 'var(--text-muted)', marginBottom: '24px', fontSize: '0.95rem' }}>
+      <div className="glass-panel" style={{ padding: '36px', background: '#ffffff' }}>
+        <h2 style={{ fontSize: '1.75rem', marginBottom: '8px', color: '#0f172a' }}>🏆 ZK Winner Verification & Prize Claim</h2>
+        <p style={{ color: '#64748b', marginBottom: '24px', fontSize: '0.95rem' }}>
           Verify if your ticket secret matches the winning commitment on-chain. Zero-Knowledge proofs verify ownership without exposing non-winning entries.
         </p>
 
         {/* Status Box */}
-        <div style={{ background: 'rgba(15, 23, 42, 0.7)', borderRadius: '12px', padding: '20px', marginBottom: '24px', border: '1px solid var(--border-glass)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-            <span style={{ color: 'var(--text-dim)' }}>On-Chain Winning Commitment:</span>
-            <span style={{ color: '#fbbf24', fontWeight: '600' }}>
+        <div style={{ background: '#f0fdf4', borderRadius: '16px', padding: '24px', marginBottom: '28px', border: '1px solid rgba(16, 185, 129, 0.25)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+            <span style={{ color: '#64748b', fontWeight: '600' }}>On-Chain Winning Commitment:</span>
+            <span style={{ color: '#d97706', fontWeight: '700', fontFamily: 'monospace' }}>
               {giveaway.winningCommitment !== '0x0000000000000000000000000000000000000000000000000000000000000000'
-                ? giveaway.winningCommitment.substring(0, 16) + '...'
+                ? giveaway.winningCommitment.substring(0, 18) + '...'
                 : 'Pending Selection by Organizer'}
             </span>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span style={{ color: 'var(--text-dim)' }}>Prize Claim Status:</span>
-            <span style={{ color: giveaway.winnerClaimed ? '#10b981' : '#38bdf8', fontWeight: '600' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+            <span style={{ color: '#64748b', fontWeight: '600' }}>Prize Claim Status:</span>
+            <span style={{ color: giveaway.winnerClaimed ? '#059669' : '#0284c7', fontWeight: '800' }}>
               {giveaway.winnerClaimed ? 'CLAIMED' : 'UNCLAIMED'}
             </span>
           </div>
         </div>
 
         {/* Form */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
           <div>
-            <label style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>
+            <label style={{ fontSize: '0.9rem', color: '#334155', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
               Enter Your Private Ticket Secret:
             </label>
             <input
@@ -78,16 +78,16 @@ export const WinnerVerification: React.FC<WinnerVerificationProps> = ({ giveaway
               placeholder="e.g. 46aff717417086838261bea1896c2b8b"
               value={ticketSecretInput}
               onChange={(e) => setTicketSecretInput(e.target.value)}
-              style={{ fontFamily: 'monospace' }}
+              style={{ fontFamily: 'monospace', padding: '14px' }}
             />
           </div>
 
-          <button className="btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={handleVerifyAndClaim}>
+          <button className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '14px' }} onClick={handleVerifyAndClaim}>
             🔒 Execute ZK Proof & Claim Prize
           </button>
 
           {verificationResult.status === 'success' && (
-            <div style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '10px', padding: '16px', color: '#34d399', fontSize: '0.9rem' }}>
+            <div style={{ background: '#ecfdf5', border: '1px solid rgba(16, 185, 129, 0.4)', borderRadius: '12px', padding: '16px', color: '#047857', fontSize: '0.9rem', fontWeight: '600' }}>
               ✓ {verificationResult.message}
             </div>
           )}
@@ -98,3 +98,5 @@ export const WinnerVerification: React.FC<WinnerVerificationProps> = ({ giveaway
     </div>
   );
 };
+
+export default WinnerVerification;

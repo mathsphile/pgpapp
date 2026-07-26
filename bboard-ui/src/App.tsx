@@ -1,7 +1,8 @@
-// Private Giveaway Platform (PGP) Main App Component
+// Private Giveaway Platform (PGP) Main App Component - White & Emerald Theme
 
 import React from 'react';
 import { Navbar } from './components/Navbar.js';
+import { HomePage } from './components/HomePage.js';
 import { Dashboard } from './components/Dashboard.js';
 import { GiveawayPortal } from './components/GiveawayPortal.js';
 import { WinnerVerification } from './components/WinnerVerification.js';
@@ -28,10 +29,14 @@ export const App: React.FC = () => {
   } = usePGPStore();
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-main)' }}>
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} wallet={wallet} />
 
       <main style={{ flex: 1, maxWidth: '1280px', width: '100%', margin: '0 auto', padding: '40px 24px' }}>
+        {activeTab === 'home' && (
+          <HomePage giveaway={giveaway} setActiveTab={setActiveTab} />
+        )}
+
         {activeTab === 'dashboard' && (
           <Dashboard giveaway={giveaway} activities={activities} setActiveTab={setActiveTab} />
         )}
@@ -66,7 +71,7 @@ export const App: React.FC = () => {
         onClose={() => setTxModal((prev) => ({ ...prev, isOpen: false }))}
       />
 
-      <footer style={{ borderTop: '1px solid var(--border-glass)', padding: '24px', textAlign: 'center', color: 'var(--text-dim)', fontSize: '0.85rem' }}>
+      <footer style={{ borderTop: '1px solid var(--border-glass)', padding: '24px', textAlign: 'center', color: '#64748b', fontSize: '0.85rem', background: '#ffffff' }}>
         Midnight Network Private Giveaway Platform (PGP) • Zero-Knowledge Smart Contract System
       </footer>
     </div>

@@ -1,4 +1,4 @@
-// Transaction Status Modal Component for PGP DApp
+// Transaction Status Modal Component for PGP DApp - White & Emerald Theme
 
 import React from 'react';
 import { TransactionStatus } from '../types.js';
@@ -19,15 +19,15 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, stat
     <div style={{
       position: 'fixed',
       inset: 0,
-      background: 'rgba(0, 0, 0, 0.75)',
-      backdropFilter: 'blur(8px)',
+      background: 'rgba(15, 23, 42, 0.4)',
+      backdropFilter: 'blur(10px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 100,
       padding: '24px'
     }}>
-      <div className="glass-panel" style={{ width: '100%', maxWidth: '480px', padding: '32px', textAlign: 'center', background: '#0f172a' }}>
+      <div className="glass-panel" style={{ width: '100%', maxWidth: '480px', padding: '36px', textAlign: 'center', background: '#ffffff', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
         
         {/* Status Indicator */}
         <div style={{ marginBottom: '20px' }}>
@@ -37,21 +37,21 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, stat
           {status === 'Failed' && <div style={{ fontSize: '3rem' }}>❌</div>}
         </div>
 
-        <h3 style={{ fontSize: '1.4rem', marginBottom: '8px' }}>{action}</h3>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', marginBottom: '20px' }}>{message}</p>
+        <h3 style={{ fontSize: '1.4rem', marginBottom: '8px', color: '#0f172a' }}>{action}</h3>
+        <p style={{ color: '#64748b', fontSize: '0.95rem', marginBottom: '20px' }}>{message}</p>
 
         {txHash && (
-          <div style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '12px', marginBottom: '24px', fontFamily: 'monospace', fontSize: '0.8rem', color: '#38bdf8' }}>
+          <div style={{ background: '#f0fdf4', border: '1px solid rgba(16, 185, 129, 0.25)', borderRadius: '10px', padding: '12px', marginBottom: '24px', fontFamily: 'monospace', fontSize: '0.825rem', color: '#059669', fontWeight: '700' }}>
             TxHash: {txHash}
           </div>
         )}
 
         {status === 'Confirmed' || status === 'Failed' ? (
-          <button className="btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={onClose}>
+          <button className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '14px' }} onClick={onClose}>
             Done
           </button>
         ) : (
-          <div style={{ fontSize: '0.85rem', color: 'var(--text-dim)' }}>
+          <div style={{ fontSize: '0.875rem', color: '#059669', fontWeight: '600' }}>
             Processing Zero-Knowledge proof on Midnight Network...
           </div>
         )}
@@ -60,3 +60,5 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, stat
     </div>
   );
 };
+
+export default TransactionModal;

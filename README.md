@@ -37,27 +37,32 @@ The verifying frontend requires no custodial wallet or private data server. It r
 
 Below are live application views captured from the Glassmorphism Web DApp (`bboard-ui`):
 
-### 1. Main Dashboard
+### 1. Home Page & Protocol Landing
+Features an intuitive overview of zero-knowledge giveaway privacy, a step-by-step interactive workflow guide, key protocol benefits, and quick action entry points.
+
+![Home Page](docs/screenshots/home.png)
+
+### 2. Main Dashboard
 Provides real-time visibility into active giveaways, total private entries in the ZK accumulator, escrowed prize pools, and confirmed transaction activity logs.
 
 ![Main Dashboard](docs/screenshots/dashboard.png)
 
-### 2. Private Entry Portal
+### 3. Private Entry Portal
 Participants generate a local ticket secret and nonce on their device. Only the opaque commitment hash `persistentHash([secret, sk, nonce])` is registered on-chain.
 
 ![Private Entry Portal](docs/screenshots/enter_giveaway.png)
 
-### 3. Organizer Console
+### 4. Organizer Console
 Organizers initialize giveaway parameters, monitor shielded entry counts in real time, and close registration by drawing a winning commitment.
 
 ![Organizer Console](docs/screenshots/organizer_console.png)
 
-### 4. Zero-Knowledge Winner Verification & Claim
+### 5. Zero-Knowledge Winner Verification & Claim
 The winning ticket holder inputs their local ticket secret to construct a ZK proof. The circuit verifies the secret matches the published `winningCommitment` without revealing any private keys.
 
 ![Winner Verification](docs/screenshots/winner_verification.png)
 
-### 5. Analytics & Cryptographic Metrics
+### 6. Analytics & Cryptographic Metrics
 Displays Merkle tree depth, proof generation speed, accumulator entry counts, and contract status metrics.
 
 ![Analytics](docs/screenshots/analytics.png)

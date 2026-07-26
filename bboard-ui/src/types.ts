@@ -1,6 +1,6 @@
 // Private Giveaway Platform (PGP) UI Types
 
-export type AppTab = 'dashboard' | 'giveaways' | 'verify' | 'organizer' | 'analytics' | 'settings';
+export type AppTab = 'home' | 'dashboard' | 'giveaways' | 'verify' | 'organizer' | 'analytics' | 'settings';
 
 export type TransactionStatus = 'Idle' | 'Pending' | 'Processing' | 'Confirmed' | 'Failed';
 

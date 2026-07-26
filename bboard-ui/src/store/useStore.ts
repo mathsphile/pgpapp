@@ -37,7 +37,7 @@ const INITIAL_ACTIVITIES: ActivityItem[] = [
 ];
 
 export function usePGPStore() {
-  const [activeTab, setActiveTab] = useState<AppTab>('dashboard');
+  const [activeTab, setActiveTab] = useState<AppTab>('home');
   const [contractAddress, setContractAddress] = useState<string>('02007a8f902c31e7b41298c5643a1f9e2b1049e0c8b321a94f876e5d4c3b2a1f');
   const [giveaway, setGiveaway] = useState<GiveawayItem>(INITIAL_GIVEAWAY);
   const [activities, setActivities] = useState<ActivityItem[]>(INITIAL_ACTIVITIES);

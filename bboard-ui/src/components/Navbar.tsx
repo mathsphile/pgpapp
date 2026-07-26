@@ -1,4 +1,4 @@
-// Navbar Component for PGP DApp
+// Navbar Component for PGP DApp - White & Emerald Theme
 
 import React from 'react';
 import { AppTab, WalletState } from '../types.js';
@@ -11,6 +11,7 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, wallet }) => {
   const tabs: { id: AppTab; label: string; icon: string }[] = [
+    { id: 'home', label: 'Home', icon: '🏠' },
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
     { id: 'giveaways', label: 'Giveaways', icon: '🎟️' },
     { id: 'verify', label: 'Winner Verification', icon: '🏆' },
@@ -21,32 +22,33 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, wallet 
 
   return (
     <header className="glass-header">
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
         
         {/* Brand / Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setActiveTab('dashboard')}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setActiveTab('home')}>
           <div style={{
-            width: '40px',
-            height: '40px',
+            width: '42px',
+            height: '42px',
             borderRadius: '12px',
-            background: 'linear-gradient(135deg, #6366f1, #a855f7)',
+            background: 'linear-gradient(135deg, #10b981, #059669)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontWeight: '800',
-            fontSize: '1.2rem',
-            boxShadow: '0 4px 16px rgba(99, 102, 241, 0.4)'
+            fontSize: '1.25rem',
+            boxShadow: '0 4px 16px rgba(16, 185, 129, 0.35)',
+            color: '#fff'
           }}>
             🛡️
           </div>
           <div>
-            <h2 className="gradient-text" style={{ fontSize: '1.25rem', lineHeight: '1.2' }}>Midnight PGP</h2>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Private Giveaway Platform</p>
+            <h2 className="gradient-text" style={{ fontSize: '1.3rem', lineHeight: '1.2', fontWeight: '800' }}>Midnight PGP</h2>
+            <p style={{ fontSize: '0.75rem', color: '#059669', fontWeight: '600' }}>Private Giveaway Platform</p>
           </div>
         </div>
 
         {/* Nav Tabs */}
-        <nav style={{ display: 'flex', gap: '8px' }}>
+        <nav style={{ display: 'flex', gap: '6px', overflowX: 'auto', padding: '4px 0' }}>
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -54,18 +56,19 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, wallet 
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 style={{
-                  background: isActive ? 'rgba(99, 102, 241, 0.2)' : 'transparent',
-                  border: isActive ? '1px solid rgba(99, 102, 241, 0.5)' : '1px solid transparent',
-                  color: isActive ? '#fff' : 'var(--text-muted)',
-                  borderRadius: '10px',
-                  padding: '8px 16px',
+                  background: isActive ? '#ecfdf5' : 'transparent',
+                  border: isActive ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid transparent',
+                  color: isActive ? '#047857' : '#64748b',
+                  borderRadius: '12px',
+                  padding: '8px 14px',
                   fontSize: '0.875rem',
-                  fontWeight: '600',
+                  fontWeight: isActive ? '700' : '600',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px',
                   transition: 'all 0.2s ease',
+                  boxShadow: isActive ? '0 2px 8px rgba(16, 185, 129, 0.12)' : 'none',
                 }}
               >
                 <span>{tab.icon}</span>
@@ -78,18 +81,19 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, wallet 
         {/* Wallet Status Badge */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{
-            background: 'rgba(15, 23, 42, 0.7)',
-            border: '1px solid var(--border-glass)',
+            background: '#ffffff',
+            border: '1px solid var(--border-glass-strong)',
             borderRadius: '12px',
             padding: '6px 14px',
             display: 'flex',
             alignItems: 'center',
-            gap: '10px'
+            gap: '10px',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.03)'
           }}>
-            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 10px #10b981' }} />
+            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
             <div>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: '500' }}>{wallet.network}</p>
-              <p style={{ fontSize: '0.85rem', fontWeight: '700', color: '#38bdf8' }}>{wallet.balance}</p>
+              <p style={{ fontSize: '0.725rem', color: '#64748b', fontWeight: '600' }}>{wallet.network}</p>
+              <p style={{ fontSize: '0.85rem', fontWeight: '800', color: '#059669' }}>{wallet.balance}</p>
             </div>
           </div>
         </div>
@@ -98,3 +102,5 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, wallet 
     </header>
   );
 };
+
+export default Navbar;
