@@ -14,12 +14,13 @@
 ## 📹 Video Walkthrough & Live Demo
 
 - 🌐 **Live Web Application**: [https://pgpapp.vercel.app/](https://pgpapp.vercel.app/)
-- 🎥 **Video Demo Walkthrough**: [Watch YouTube / Loom End-to-End Demo](https://youtube.com/watch?v=YOUR_DEMO_VIDEO_ID) *(Replace with your video recording link)*
+- 🎥 **Video Demo Walkthrough**: [Watch Midnight PGP Video Walkthrough (YouTube)](https://youtu.be/meczmnhMPWo)
+
+[![Watch Midnight PGP Video Walkthrough](https://img.youtube.com/vi/meczmnhMPWo/maxresdefault.jpg)](https://youtu.be/meczmnhMPWo)
 
 ```text
-[ 🎥 VIDEO DEMO PLACEHOLDER ]
-Link: https://youtube.com/watch?v=YOUR_DEMO_VIDEO_ID
-Title: Midnight PGP - End-to-End Zero-Knowledge Private Giveaway Walkthrough
+🎥 Video Title: Midnight PGP - End-to-End Zero-Knowledge Private Giveaway Walkthrough
+Video Link:  https://youtu.be/meczmnhMPWo
 ```
 
 ---
