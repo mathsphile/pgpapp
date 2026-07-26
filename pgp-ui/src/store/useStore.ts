@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { AppTab, ActivityItem, GiveawayItem, WalletState, TransactionStatus } from '../types.js';
-import { detectMidnightWallets, connectLaceWallet } from '../utils/midnightWallet.js';
+import { detectMidnightWallets, connectMidnightWallet } from '../utils/midnightWallet.js';
 
 const INITIAL_GIVEAWAY: GiveawayItem = {
   id: 'pgp-giveaway-1',
@@ -82,65 +82,27 @@ export function usePGPStore() {
   const connectWallet = async (type: 'lace' | '1am' | 'seed') => {
     setWallet((prev) => ({ ...prev, isConnecting: true, error: null }));
 
-    if (type === 'lace') {
-      const { isLaceInstalled } = detectMidnightWallets();
-      if (!isLaceInstalled) {
-        setWallet((prev) => ({
-          ...prev,
-          isConnecting: false,
-          error: 'Lace Wallet extension not detected in browser. Please install Lace Wallet for Midnight Network.',
-        }));
-        return;
-      }
-
-      try {
-        const res = await connectLaceWallet();
-        setWallet({
-          isConnected: true,
-          address: res.address,
-          network: res.network,
-          balance: res.balance,
-          walletType: 'lace',
-          isLaceInstalled: true,
-          isConnecting: false,
-          error: null,
-        });
-        setIsWalletModalOpen(false);
-        addActivity('Wallet Connected', 'Confirmed', `Connected via Lace Wallet (${res.address.substring(0, 10)}...)`);
-        return;
-      } catch (err: any) {
-        setWallet((prev) => ({
-          ...prev,
-          isConnecting: false,
-          error: err.message || 'Failed to connect Lace Wallet.',
-        }));
-        return;
-      }
+    try {
+      const res = await connectMidnightWallet(type);
+      setWallet({
+        isConnected: true,
+        address: res.address,
+        network: res.network,
+        balance: res.balance,
+        walletType: type,
+        isLaceInstalled: wallet.isLaceInstalled,
+        isConnecting: false,
+        error: null,
+      });
+      setIsWalletModalOpen(false);
+      addActivity('Wallet Connected', 'Confirmed', `Connected via ${type.toUpperCase()} (${res.address.substring(0, 10)}...)`);
+    } catch (err: any) {
+      setWallet((prev) => ({
+        ...prev,
+        isConnecting: false,
+        error: err.message || `Failed to connect ${type.toUpperCase()} Wallet.`,
+      }));
     }
-
-    // Provider connection for 1AM / Seed Phrase
-    await new Promise((r) => setTimeout(r, 800));
-
-    const mockAddresses = {
-      '1am': 'mn_addr_preprod1q9a8c7b6v5x4z3m2n1p0o9i8u7y6t5r4e3w2q1a0b9c8d7e6f5',
-      seed: 'mn_addr_preprod1q7x8y9z0a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u',
-    };
-
-    const targetAddr = mockAddresses[type];
-
-    setWallet({
-      isConnected: true,
-      address: targetAddr,
-      network: 'Preprod Remote',
-      balance: '1,000 tNIGHT',
-      walletType: type,
-      isLaceInstalled: wallet.isLaceInstalled,
-      isConnecting: false,
-      error: null,
-    });
-
-    setIsWalletModalOpen(false);
-    addActivity('Wallet Connected', 'Confirmed', `Connected via ${type.toUpperCase()} provider (${targetAddr.substring(0, 10)}...)`);
   };
 
   const disconnectWallet = () => {

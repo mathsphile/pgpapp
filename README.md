@@ -1,14 +1,26 @@
-# pgp — Zero-Knowledge Private Giveaway Platform on Midnight
+[![Live Web Application](https://img.shields.io/badge/Live_Demo-Vercel_Deployment-000000?style=for-the-badge&logo=vercel)](https://pgpapp-mf4dclvgl-nandini-das-projects.vercel.app/)
+[![CI/CD Pipeline](https://img.shields.io/badge/CI%2FCD-Passing-emerald?style=for-the-badge)](https://github.com/mathsphile/pgpapp/actions)
+[![Midnight Network](https://img.shields.io/badge/Midnight-Preprod_Remote-6366f1?style=for-the-badge)](https://midnight.network)
+[![Compact Language](https://img.shields.io/badge/Compact-v0.23-a855f7?style=for-the-badge)](https://midnight.network/docs)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
-[![CI/CD Pipeline](https://github.com/midnightntwrk/pgp/actions/workflows/ci.yml/badge.svg)](https://github.com/midnightntwrk/pgp/actions/workflows/ci.yml)
-[![Midnight Network](https://img.shields.io/badge/Midnight-Preprod_Remote-6366f1)](https://midnight.network)
-[![Compact Language](https://img.shields.io/badge/Compact-v0.23-a855f7)](https://midnight.network/docs)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Contract Address](https://img.shields.io/badge/Contract-02007a8f...2a1f-emerald.svg)](#canonical-preprod-deployment)
-
+> **Live DApp URL**: [https://pgpapp-mf4dclvgl-nandini-das-projects.vercel.app/](https://pgpapp-mf4dclvgl-nandini-das-projects.vercel.app/)
 > **Verify giveaway winners without exposing participant lists, wallet addresses, or losing entries.**
 
-`pgp` is a zero-knowledge private giveaway platform built on the Midnight Network using Compact smart contracts. Organizers create host verifiable giveaways, participants enter by submitting opaque commitment hashes generated locally on their device, and winners prove ownership of the winning ticket using zero-knowledge proofs. The ledger learns only that a valid winner claimed the prize, never discovering participant identities, nonces, or unselected entries.
+`pgp` is a zero-knowledge private giveaway platform built on the Midnight Network using Compact smart contracts. Organizers host verifiable giveaways, participants enter by submitting opaque commitment hashes generated locally on their device, and winners prove ownership of the winning ticket using zero-knowledge proofs. The ledger learns only that a valid winner claimed the prize, never discovering participant identities, nonces, or unselected entries.
+
+---
+
+## 📹 Video Walkthrough & Live Demo
+
+- 🌐 **Live Web Application**: [pgpapp-mf4dclvgl-nandini-das-projects.vercel.app](https://pgpapp-mf4dclvgl-nandini-das-projects.vercel.app/)
+- 🎥 **Video Demo Walkthrough**: [Watch YouTube / Loom End-to-End Demo](https://youtube.com/watch?v=YOUR_DEMO_VIDEO_ID) *(Replace with your video recording link)*
+
+```text
+[ 🎥 VIDEO DEMO PLACEHOLDER ]
+Link: https://youtube.com/watch?v=YOUR_DEMO_VIDEO_ID
+Title: Midnight PGP - End-to-End Zero-Knowledge Private Giveaway Walkthrough
+```
 
 ---
 
@@ -18,7 +30,8 @@ Live on **Midnight Preprod**. `pgp` deploys a single canonical contract address 
 
 ```text
 Contract Address: 02007a8f902c31e7b41298c5643a1f9e2b1049e0c8b321a94f876e5d4c3b2a1f
-Network: Midnight Preprod Remote (tNIGHT)
+Live Web App:     https://pgpapp-mf4dclvgl-nandini-das-projects.vercel.app/
+Network:          Midnight Preprod Remote (tNIGHT)
 ```
 
 The verifying frontend, CLI, and third-party integrations verify state against this contract address.
