@@ -35,7 +35,7 @@ The verifying frontend requires no custodial wallet or private data server. It r
 
 ## Application Walkthrough & Visual Interface
 
-Below are live application views captured from the Glassmorphism Web DApp (`bboard-ui`):
+Below are live application views captured from the Glassmorphism Web DApp (`pgp-ui`):
 
 ### 1. Home Page & Protocol Landing
 Features an intuitive overview of zero-knowledge giveaway privacy, a step-by-step interactive workflow guide, key protocol benefits, and quick action entry points.
@@ -276,8 +276,8 @@ Privacy in `pgp` is load-bearing, not decorative.
 pgp/
 ├── contract/     # Compact smart contract (pgp.compact), witnesses, and compiled artifacts
 ├── api/          # @midnight-ntwrk/pgp-api TypeScript adapter & state observables
-├── bboard-cli/   # @midnight-ntwrk/pgp-cli interactive CLI tool for deployment & automated tests
-├── bboard-ui/    # @midnight-ntwrk/pgp-ui Glassmorphism web application (React 19, Vite, Zustand)
+├── pgp-cli/      # @midnight-ntwrk/pgp-cli interactive CLI tool for deployment & automated tests
+├── pgp-ui/       # @midnight-ntwrk/pgp-ui Glassmorphism web application (React 19, Vite, Zustand)
 └── docs/         # Visual documentation and application screenshots
 ```
 
@@ -308,14 +308,14 @@ pgp/
 
 3. **Launch Demo Web Application**:
    ```bash
-   cd bboard-ui
+   cd pgp-ui
    npm run dev
    ```
    Open `http://localhost:5173` in your browser.
 
 4. **Run Headless CLI (Optional)**:
    ```bash
-   cd bboard-cli
+   cd pgp-cli
    NODE_OPTIONS="--max-old-space-size=8192" npm run preprod-remote
    ```
 
