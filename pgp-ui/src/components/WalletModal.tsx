@@ -1,13 +1,13 @@
-// Wallet Connection Modal Component for PGP DApp - Real Detection & Installation Guidance
+// Wallet Connection Modal Component for PGP DApp - Real Provider & Custom Address Input
 
-import React from 'react';
+import React, { useState } from 'react';
 import { WalletState } from '../types.js';
 
 interface WalletModalProps {
   isOpen: boolean;
   onClose: () => void;
   wallet: WalletState;
-  connectWallet: (type: 'lace' | '1am' | 'seed') => void;
+  connectWallet: (type: 'lace' | '1am' | 'seed' | 'custom', customAddress?: string) => void;
   disconnectWallet: () => void;
 }
 
@@ -18,7 +18,18 @@ export const WalletModal: React.FC<WalletModalProps> = ({
   connectWallet,
   disconnectWallet,
 }) => {
+  const [customAddr, setCustomAddr] = useState<string>('');
+  const [activeMode, setActiveMode] = useState<'select' | 'custom'>('select');
+
   if (!isOpen) return null;
+
+  const handleConnectCustom = () => {
+    if (!customAddr || customAddr.trim().length < 10) {
+      alert('Please enter a valid Midnight wallet address (e.g., mn_addr_preprod... or 0x...)');
+      return;
+    }
+    connectWallet('custom', customAddr.trim());
+  };
 
   return (
     <div
@@ -39,7 +50,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({
         className="glass-panel"
         style={{
           width: '100%',
-          maxWidth: '520px',
+          maxWidth: '540px',
           padding: '36px',
           background: '#ffffff',
           border: '1px solid rgba(16, 185, 129, 0.35)',
@@ -85,7 +96,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({
               </div>
               <div>
                 <h3 style={{ fontSize: '1.4rem', color: '#0f172a' }}>Connect Midnight Wallet</h3>
-                <p style={{ fontSize: '0.825rem', color: '#64748b' }}>Select your Midnight Preprod Remote provider</p>
+                <p style={{ fontSize: '0.825rem', color: '#64748b' }}>Connect your Midnight Preprod Remote provider or address</p>
               </div>
             </div>
 
@@ -95,109 +106,135 @@ export const WalletModal: React.FC<WalletModalProps> = ({
               </div>
             )}
 
-            <p style={{ color: '#475569', fontSize: '0.9rem', margin: '16px 0 24px 0', lineHeight: '1.5' }}>
-              Connect your wallet to generate client-side zk-SNARK witnesses, submit private giveaway entries, and prove winning tickets.
-            </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              
-              {/* Option 1: Lace Wallet Extension */}
-              <div
-                onClick={() => connectWallet('lace')}
-                style={{
-                  background: '#f0fdf4',
-                  border: '1px solid rgba(16, 185, 129, 0.25)',
-                  borderRadius: '14px',
-                  padding: '16px 20px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  transition: 'all 0.2s ease',
-                }}
-                className="wallet-option"
+            <div style={{ display: 'flex', gap: '8px', margin: '16px 0 20px 0' }}>
+              <button
+                className={activeMode === 'select' ? 'btn-primary' : 'btn-secondary'}
+                style={{ flex: 1, padding: '8px', fontSize: '0.85rem', justifyContent: 'center' }}
+                onClick={() => setActiveMode('select')}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                  <span style={{ fontSize: '1.8rem' }}>🦔</span>
-                  <div>
-                    <h4 style={{ fontSize: '1.05rem', color: '#0f172a' }}>Lace Wallet Extension</h4>
-                    <p style={{ fontSize: '0.78rem', color: '#64748b' }}>
-                      {wallet.isLaceInstalled ? 'Detected in browser' : 'Midnight Preprod Chrome Extension'}
-                    </p>
-                  </div>
-                </div>
-                <span className={`badge-status ${wallet.isLaceInstalled ? 'badge-open' : 'badge-pending'}`} style={{ fontSize: '0.7rem' }}>
-                  {wallet.isLaceInstalled ? 'Detected' : 'Install Lace'}
-                </span>
-              </div>
-
-              {!wallet.isLaceInstalled && (
-                <div style={{ background: '#f8fafc', padding: '12px 16px', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '0.8rem', color: '#64748b', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span>Don't have Lace Wallet for Midnight?</span>
-                  <a
-                    href="https://www.lace.io/"
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{ color: '#059669', fontWeight: '700', textDecoration: 'none' }}
-                  >
-                    Install Extension ↗
-                  </a>
-                </div>
-              )}
-
-              {/* Option 2: 1AM Wallet */}
-              <div
-                onClick={() => connectWallet('1am')}
-                style={{
-                  background: '#f0fdf4',
-                  border: '1px solid rgba(16, 185, 129, 0.25)',
-                  borderRadius: '14px',
-                  padding: '16px 20px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  transition: 'all 0.2s ease',
-                }}
-                className="wallet-option"
+                ⚡ Browser Extension
+              </button>
+              <button
+                className={activeMode === 'custom' ? 'btn-primary' : 'btn-secondary'}
+                style={{ flex: 1, padding: '8px', fontSize: '0.85rem', justifyContent: 'center' }}
+                onClick={() => setActiveMode('custom')}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                  <span style={{ fontSize: '1.8rem' }}>⚡</span>
-                  <div>
-                    <h4 style={{ fontSize: '1.05rem', color: '#0f172a' }}>1AM Wallet Connector</h4>
-                    <p style={{ fontSize: '0.78rem', color: '#64748b' }}>Testnet connector with auto tNIGHT faucet</p>
-                  </div>
-                </div>
-                <span className="badge-status badge-open" style={{ fontSize: '0.7rem' }}>Faucet Ready</span>
-              </div>
-
-              {/* Option 3: Seed / Private State Wallet */}
-              <div
-                onClick={() => connectWallet('seed')}
-                style={{
-                  background: '#f0fdf4',
-                  border: '1px solid rgba(16, 185, 129, 0.25)',
-                  borderRadius: '14px',
-                  padding: '16px 20px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  transition: 'all 0.2s ease',
-                }}
-                className="wallet-option"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                  <span style={{ fontSize: '1.8rem' }}>🔑</span>
-                  <div>
-                    <h4 style={{ fontSize: '1.05rem', color: '#0f172a' }}>Seed Phrase Import</h4>
-                    <p style={{ fontSize: '0.78rem', color: '#64748b' }}>Local private state LevelDB key store</p>
-                  </div>
-                </div>
-                <span className="badge-status badge-open" style={{ fontSize: '0.7rem' }}>Headless</span>
-              </div>
-
+                📝 Enter Custom Address
+              </button>
             </div>
+
+            {activeMode === 'select' ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                
+                {/* Option 1: Lace Wallet Extension */}
+                <div
+                  onClick={() => connectWallet('lace')}
+                  style={{
+                    background: '#f0fdf4',
+                    border: '1px solid rgba(16, 185, 129, 0.25)',
+                    borderRadius: '14px',
+                    padding: '16px 20px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    transition: 'all 0.2s ease',
+                  }}
+                  className="wallet-option"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <span style={{ fontSize: '1.8rem' }}>🦔</span>
+                    <div>
+                      <h4 style={{ fontSize: '1.05rem', color: '#0f172a' }}>Lace Wallet Extension</h4>
+                      <p style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                        {wallet.isLaceInstalled ? 'Detected in browser' : 'Midnight Preprod Chrome Extension'}
+                      </p>
+                    </div>
+                  </div>
+                  <span className={`badge-status ${wallet.isLaceInstalled ? 'badge-open' : 'badge-pending'}`} style={{ fontSize: '0.7rem' }}>
+                    {wallet.isLaceInstalled ? 'Detected' : 'Install Lace'}
+                  </span>
+                </div>
+
+                {/* Option 2: 1AM Wallet */}
+                <div
+                  onClick={() => connectWallet('1am')}
+                  style={{
+                    background: '#f0fdf4',
+                    border: '1px solid rgba(16, 185, 129, 0.25)',
+                    borderRadius: '14px',
+                    padding: '16px 20px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    transition: 'all 0.2s ease',
+                  }}
+                  className="wallet-option"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <span style={{ fontSize: '1.8rem' }}>⚡</span>
+                    <div>
+                      <h4 style={{ fontSize: '1.05rem', color: '#0f172a' }}>1AM Wallet Connector</h4>
+                      <p style={{ fontSize: '0.78rem', color: '#64748b' }}>Connect to Midnight Preprod remote wallet node</p>
+                    </div>
+                  </div>
+                  <span className="badge-status badge-open" style={{ fontSize: '0.7rem' }}>1AM Connector</span>
+                </div>
+
+                {/* Option 3: Seed / Private State Wallet */}
+                <div
+                  onClick={() => connectWallet('seed')}
+                  style={{
+                    background: '#f0fdf4',
+                    border: '1px solid rgba(16, 185, 129, 0.25)',
+                    borderRadius: '14px',
+                    padding: '16px 20px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    transition: 'all 0.2s ease',
+                  }}
+                  className="wallet-option"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <span style={{ fontSize: '1.8rem' }}>🔑</span>
+                    <div>
+                      <h4 style={{ fontSize: '1.05rem', color: '#0f172a' }}>Seed Phrase Import</h4>
+                      <p style={{ fontSize: '0.78rem', color: '#64748b' }}>Local private state witness key store</p>
+                    </div>
+                  </div>
+                  <span className="badge-status badge-open" style={{ fontSize: '0.7rem' }}>Headless</span>
+                </div>
+
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <p style={{ color: '#475569', fontSize: '0.875rem' }}>
+                  Enter your real Midnight Network Bech32 wallet address (`mn_addr_preprod...` or `0x...`):
+                </p>
+                <div>
+                  <span style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: '700', display: 'block', marginBottom: '4px' }}>
+                    MIDNIGHT WALLET ADDRESS
+                  </span>
+                  <input
+                    className="input-glass"
+                    placeholder="mn_addr_preprod1..."
+                    value={customAddr}
+                    onChange={(e) => setCustomAddr(e.target.value)}
+                    style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}
+                  />
+                </div>
+                <button
+                  className="btn-primary"
+                  style={{ width: '100%', justifyContent: 'center', padding: '12px' }}
+                  onClick={handleConnectCustom}
+                >
+                  ⚡ Connect Custom Midnight Address
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           <div>
@@ -221,7 +258,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({
               </div>
               <h3 style={{ fontSize: '1.4rem', color: '#0f172a' }}>Wallet Connected</h3>
               <p style={{ fontSize: '0.85rem', color: '#059669', fontWeight: '600' }}>
-                Connected via {wallet.walletType?.toUpperCase()} Wallet
+                Connected via {wallet.walletType?.toUpperCase()} Provider
               </p>
             </div>
 

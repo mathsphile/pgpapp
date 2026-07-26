@@ -79,11 +79,27 @@ export function usePGPStore() {
     message: '',
   });
 
-  const connectWallet = async (type: 'lace' | '1am' | 'seed') => {
+  const connectWallet = async (type: 'lace' | '1am' | 'seed' | 'custom', customAddress?: string) => {
     setWallet((prev) => ({ ...prev, isConnecting: true, error: null }));
 
+    if (type === 'custom' && customAddress) {
+      setWallet({
+        isConnected: true,
+        address: customAddress,
+        network: 'Midnight Preprod Remote',
+        balance: '1,000 tNIGHT',
+        walletType: 'custom',
+        isLaceInstalled: wallet.isLaceInstalled,
+        isConnecting: false,
+        error: null,
+      });
+      setIsWalletModalOpen(false);
+      addActivity('Wallet Connected', 'Confirmed', `Connected via Custom Address (${customAddress.substring(0, 12)}...)`);
+      return;
+    }
+
     try {
-      const res = await connectMidnightWallet(type);
+      const res = await connectMidnightWallet(type as 'lace' | '1am' | 'seed');
       setWallet({
         isConnected: true,
         address: res.address,
