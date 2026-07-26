@@ -3,20 +3,8 @@
 declare global {
   interface Window {
     midnight?: {
-      lace?: {
-        name: string;
-        icon: string;
-        apiVersion: string;
-        enable: () => Promise<any>;
-        isEnabled: () => Promise<boolean>;
-      };
-      '1am'?: {
-        name: string;
-        icon: string;
-        apiVersion: string;
-        enable: () => Promise<any>;
-        isEnabled: () => Promise<boolean>;
-      };
+      lace?: any;
+      '1am'?: any;
       [key: string]: any;
     };
     cardano?: any;
@@ -35,8 +23,8 @@ export function detectMidnightWallets(): WalletDetectionResult {
     return { isLaceInstalled: false, is1AMInstalled: false, laceProvider: null, oneAMProvider: null };
   }
 
-  const laceProvider = window.midnight?.lace || window.midnight?.['midnight-lace'] || null;
-  const oneAMProvider = window.midnight?.['1am'] || window.midnight?.['midnight-1am'] || window.midnight?.oneAM || null;
+  const laceProvider = window.midnight?.lace || window.midnight?.['midnight-lace'] || window.cardano?.lace || null;
+  const oneAMProvider = window.midnight?.['1am'] || window.midnight?.['midnight-1am'] || window.midnight?.oneAM || window.cardano?.['1am'] || null;
 
   return {
     isLaceInstalled: !!laceProvider,
@@ -55,16 +43,22 @@ export async function connectMidnightWallet(
   if (providerType === 'lace') {
     if (detection.isLaceInstalled && detection.laceProvider) {
       try {
-        const api = await detection.laceProvider.enable();
-        const state = await api.state();
-        const address = state?.address || state?.coinPublicKey || state?.publicAddress || 'mn_addr_preprod1qsrk78vxtc9y2neyfh2d7ns3mxxh4xq68pptldmr3atg2d850eusj4n55v';
+        const provider = detection.laceProvider;
+        const api = typeof provider.enable === 'function'
+          ? await provider.enable()
+          : (typeof provider.connect === 'function'
+              ? await provider.connect()
+              : (typeof provider === 'function' ? await provider() : provider));
+
+        const state = typeof api?.state === 'function' ? await api.state() : api;
+        const address = state?.address || state?.coinPublicKey || state?.publicAddress || state?.accountAddress || 'mn_addr_preprod1qsrk78vxtc9y2neyfh2d7ns3mxxh4xq68pptldmr3atg2d850eusj4n55v';
         return {
           address,
           network: 'Midnight Preprod Remote',
           balance: '1,000 tNIGHT',
         };
       } catch (err: any) {
-        throw new Error(err.message || 'Lace Wallet extension authorization declined.');
+        throw new Error(err.message || 'Lace Wallet authorization declined.');
       }
     }
     throw new Error('Lace Wallet extension for Midnight Network is not installed in your browser. Please install Lace Wallet to proceed.');
@@ -73,9 +67,15 @@ export async function connectMidnightWallet(
   if (providerType === '1am') {
     if (detection.is1AMInstalled && detection.oneAMProvider) {
       try {
-        const api = await detection.oneAMProvider.enable();
-        const state = await api.state();
-        const address = state?.address || state?.coinPublicKey || state?.publicAddress || 'mn_addr_preprod1q9a8c7b6v5x4z3m2n1p0o9i8u7y6t5r4e3w2q1a0b9c8d7e6f5';
+        const provider = detection.oneAMProvider;
+        const api = typeof provider.enable === 'function'
+          ? await provider.enable()
+          : (typeof provider.connect === 'function'
+              ? await provider.connect()
+              : (typeof provider === 'function' ? await provider() : provider));
+
+        const state = typeof api?.state === 'function' ? await api.state() : api;
+        const address = state?.address || state?.coinPublicKey || state?.publicAddress || state?.accountAddress || 'mn_addr_preprod1q9a8c7b6v5x4z3m2n1p0o9i8u7y6t5r4e3w2q1a0b9c8d7e6f5';
         return {
           address,
           network: 'Midnight Preprod Remote',
