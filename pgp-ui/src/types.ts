@@ -32,4 +32,8 @@ export interface WalletState {
   address: string | null;
   network: string;
   balance: string;
+  walletType?: 'lace' | '1am' | 'seed' | null;
+  isLaceInstalled: boolean;
+  isConnecting: boolean;
+  error?: string | null;
 }

@@ -1,4 +1,4 @@
-// Navbar Component for PGP DApp - White & Emerald Theme
+// Navbar Component for PGP DApp - White & Emerald Theme with Wallet Connection Toggle
 
 import React from 'react';
 import { AppTab, WalletState } from '../types.js';
@@ -7,9 +7,17 @@ interface NavbarProps {
   activeTab: AppTab;
   setActiveTab: (tab: AppTab) => void;
   wallet: WalletState;
+  toggleWalletConnection: () => void;
+  onOpenWalletModal: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, wallet }) => {
+export const Navbar: React.FC<NavbarProps> = ({
+  activeTab,
+  setActiveTab,
+  wallet,
+  toggleWalletConnection,
+  onOpenWalletModal,
+}) => {
   const tabs: { id: AppTab; label: string; icon: string }[] = [
     { id: 'home', label: 'Home', icon: '🏠' },
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
@@ -78,24 +86,78 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, wallet 
           })}
         </nav>
 
-        {/* Wallet Status Badge */}
+        {/* Wallet Connection Toggle Switch & Badge */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{
-            background: '#ffffff',
-            border: '1px solid var(--border-glass-strong)',
-            borderRadius: '12px',
-            padding: '6px 14px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.03)'
-          }}>
-            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
-            <div>
-              <p style={{ fontSize: '0.725rem', color: '#64748b', fontWeight: '600' }}>{wallet.network}</p>
-              <p style={{ fontSize: '0.85rem', fontWeight: '800', color: '#059669' }}>{wallet.balance}</p>
-            </div>
+          
+          {/* Toggle Switch */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f8fafc', padding: '4px 8px', borderRadius: '20px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: '700', color: wallet.isConnected ? '#059669' : '#64748b' }}>
+              {wallet.isConnected ? 'Connected' : 'Disconnected'}
+            </span>
+            <button
+              onClick={toggleWalletConnection}
+              title={wallet.isConnected ? 'Click to Disconnect' : 'Click to Connect Wallet'}
+              style={{
+                width: '44px',
+                height: '24px',
+                borderRadius: '12px',
+                background: wallet.isConnected ? '#10b981' : '#cbd5e1',
+                border: 'none',
+                cursor: 'pointer',
+                position: 'relative',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <div
+                style={{
+                  width: '18px',
+                  height: '18px',
+                  borderRadius: '50%',
+                  background: '#ffffff',
+                  position: 'absolute',
+                  top: '3px',
+                  left: wallet.isConnected ? '23px' : '3px',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
+                }}
+              />
+            </button>
           </div>
+
+          {/* Connection Details Button */}
+          {wallet.isConnected ? (
+            <button
+              onClick={onOpenWalletModal}
+              style={{
+                background: '#ffffff',
+                border: '1px solid var(--border-glass-strong)',
+                borderRadius: '12px',
+                padding: '6px 14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.1)',
+                cursor: 'pointer',
+              }}
+            >
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
+              <div style={{ textAlign: 'left' }}>
+                <p style={{ fontSize: '0.725rem', color: '#64748b', fontWeight: '600' }}>
+                  {wallet.address?.substring(0, 10)}... ({wallet.walletType?.toUpperCase()})
+                </p>
+                <p style={{ fontSize: '0.85rem', fontWeight: '800', color: '#059669' }}>{wallet.balance}</p>
+              </div>
+            </button>
+          ) : (
+            <button
+              className="btn-primary"
+              style={{ padding: '10px 20px', fontSize: '0.875rem' }}
+              onClick={onOpenWalletModal}
+            >
+              <span className="pulse-glow">⚡</span> Connect Wallet
+            </button>
+          )}
+
         </div>
 
       </div>

@@ -1,7 +1,8 @@
-// PGP State Management
+// PGP State Management - Real Wallet Detection & Toggle System
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AppTab, ActivityItem, GiveawayItem, WalletState, TransactionStatus } from '../types.js';
+import { detectMidnightWallets, connectLaceWallet } from '../utils/midnightWallet.js';
 
 const INITIAL_GIVEAWAY: GiveawayItem = {
   id: 'pgp-giveaway-1',
@@ -23,7 +24,7 @@ const INITIAL_ACTIVITIES: ActivityItem[] = [
     timestamp: new Date(Date.now() - 3600000).toLocaleTimeString(),
     action: 'Giveaway Created',
     status: 'Confirmed',
-    details: 'Midnight Privacy Giveaway initialized on Preprod',
+    details: 'Midnight Privacy Giveaway initialized on Preprod Remote',
     txHash: '0x3aef...91b2',
   },
   {
@@ -41,12 +42,29 @@ export function usePGPStore() {
   const [contractAddress, setContractAddress] = useState<string>('02007a8f902c31e7b41298c5643a1f9e2b1049e0c8b321a94f876e5d4c3b2a1f');
   const [giveaway, setGiveaway] = useState<GiveawayItem>(INITIAL_GIVEAWAY);
   const [activities, setActivities] = useState<ActivityItem[]>(INITIAL_ACTIVITIES);
+
+  // Wallet Connection State (Disconnected by default)
   const [wallet, setWallet] = useState<WalletState>({
-    isConnected: true,
-    address: 'mn_addr_preprod1qsrk78vxtc9y2neyfh2d7ns3mxxh4xq68pptldmr3atg2d850eusj4n55v',
+    isConnected: false,
+    address: null,
     network: 'Preprod Remote',
-    balance: '1,000 tNIGHT',
+    balance: '0 tNIGHT',
+    walletType: null,
+    isLaceInstalled: false,
+    isConnecting: false,
+    error: null,
   });
+
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState<boolean>(false);
+
+  // Check browser extension installation on mount
+  useEffect(() => {
+    const { isLaceInstalled } = detectMidnightWallets();
+    setWallet((prev) => ({
+      ...prev,
+      isLaceInstalled,
+    }));
+  }, []);
 
   const [txModal, setTxModal] = useState<{
     isOpen: boolean;
@@ -60,6 +78,90 @@ export function usePGPStore() {
     action: '',
     message: '',
   });
+
+  const connectWallet = async (type: 'lace' | '1am' | 'seed') => {
+    setWallet((prev) => ({ ...prev, isConnecting: true, error: null }));
+
+    if (type === 'lace') {
+      const { isLaceInstalled } = detectMidnightWallets();
+      if (!isLaceInstalled) {
+        setWallet((prev) => ({
+          ...prev,
+          isConnecting: false,
+          error: 'Lace Wallet extension not detected in browser. Please install Lace Wallet for Midnight Network.',
+        }));
+        return;
+      }
+
+      try {
+        const res = await connectLaceWallet();
+        setWallet({
+          isConnected: true,
+          address: res.address,
+          network: res.network,
+          balance: res.balance,
+          walletType: 'lace',
+          isLaceInstalled: true,
+          isConnecting: false,
+          error: null,
+        });
+        setIsWalletModalOpen(false);
+        addActivity('Wallet Connected', 'Confirmed', `Connected via Lace Wallet (${res.address.substring(0, 10)}...)`);
+        return;
+      } catch (err: any) {
+        setWallet((prev) => ({
+          ...prev,
+          isConnecting: false,
+          error: err.message || 'Failed to connect Lace Wallet.',
+        }));
+        return;
+      }
+    }
+
+    // Provider connection for 1AM / Seed Phrase
+    await new Promise((r) => setTimeout(r, 800));
+
+    const mockAddresses = {
+      '1am': 'mn_addr_preprod1q9a8c7b6v5x4z3m2n1p0o9i8u7y6t5r4e3w2q1a0b9c8d7e6f5',
+      seed: 'mn_addr_preprod1q7x8y9z0a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u',
+    };
+
+    const targetAddr = mockAddresses[type];
+
+    setWallet({
+      isConnected: true,
+      address: targetAddr,
+      network: 'Preprod Remote',
+      balance: '1,000 tNIGHT',
+      walletType: type,
+      isLaceInstalled: wallet.isLaceInstalled,
+      isConnecting: false,
+      error: null,
+    });
+
+    setIsWalletModalOpen(false);
+    addActivity('Wallet Connected', 'Confirmed', `Connected via ${type.toUpperCase()} provider (${targetAddr.substring(0, 10)}...)`);
+  };
+
+  const disconnectWallet = () => {
+    setWallet((prev) => ({
+      ...prev,
+      isConnected: false,
+      address: null,
+      balance: '0 tNIGHT',
+      walletType: null,
+      error: null,
+    }));
+    addActivity('Wallet Disconnected', 'Confirmed', 'Disconnected Midnight Wallet');
+  };
+
+  const toggleWalletConnection = () => {
+    if (wallet.isConnected) {
+      disconnectWallet();
+    } else {
+      setIsWalletModalOpen(true);
+    }
+  };
 
   const addActivity = (action: string, status: TransactionStatus, details: string, txHash?: string) => {
     const newItem: ActivityItem = {
@@ -78,6 +180,11 @@ export function usePGPStore() {
     successCallback: () => void,
     detailsText: string
   ) => {
+    if (!wallet.isConnected) {
+      setIsWalletModalOpen(true);
+      return;
+    }
+
     setTxModal({
       isOpen: true,
       status: 'Pending',
@@ -119,6 +226,11 @@ export function usePGPStore() {
     activities,
     wallet,
     setWallet,
+    isWalletModalOpen,
+    setIsWalletModalOpen,
+    connectWallet,
+    disconnectWallet,
+    toggleWalletConnection,
     txModal,
     setTxModal,
     triggerTransactionFlow,
