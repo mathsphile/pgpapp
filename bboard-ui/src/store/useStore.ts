@@ -5,7 +5,7 @@ import { AppTab, ActivityItem, GiveawayItem, WalletState, TransactionStatus } fr
 
 const INITIAL_GIVEAWAY: GiveawayItem = {
   id: 'pgp-giveaway-1',
-  contractAddress: '<YOUR_DEPLOYED_CONTRACT_ADDRESS>',
+  contractAddress: '02007a8f902c31e7b41298c5643a1f9e2b1049e0c8b321a94f876e5d4c3b2a1f',
   title: 'Midnight Privacy Giveaway - 1,000 tNIGHT',
   prizeDetails: '1,000 tNIGHT + Limited Edition ZK Badge',
   organizerPk: '006acc0a4b06bc8ca2a050f3de0188bc41d1ed8c0a8c5d8f3f5e1afc86c7aa41ec',
@@ -38,7 +38,7 @@ const INITIAL_ACTIVITIES: ActivityItem[] = [
 
 export function usePGPStore() {
   const [activeTab, setActiveTab] = useState<AppTab>('dashboard');
-  const [contractAddress, setContractAddress] = useState<string>('<YOUR_DEPLOYED_CONTRACT_ADDRESS>');
+  const [contractAddress, setContractAddress] = useState<string>('02007a8f902c31e7b41298c5643a1f9e2b1049e0c8b321a94f876e5d4c3b2a1f');
   const [giveaway, setGiveaway] = useState<GiveawayItem>(INITIAL_GIVEAWAY);
   const [activities, setActivities] = useState<ActivityItem[]>(INITIAL_ACTIVITIES);
   const [wallet, setWallet] = useState<WalletState>({

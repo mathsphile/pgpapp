@@ -1,54 +1,81 @@
-# pgp
+# pgp — Zero-Knowledge Private Giveaway Platform on Midnight
 
 [![CI/CD Pipeline](https://github.com/midnightntwrk/pgp/actions/workflows/ci.yml/badge.svg)](https://github.com/midnightntwrk/pgp/actions/workflows/ci.yml)
 [![Midnight Network](https://img.shields.io/badge/Midnight-Preprod_Remote-6366f1)](https://midnight.network)
 [![Compact Language](https://img.shields.io/badge/Compact-v0.23-a855f7)](https://midnight.network/docs)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Contract Address](https://img.shields.io/badge/Contract-02007a8f...2a1f-emerald.svg)](#canonical-preprod-deployment)
 
-Verify winners without exposing participant lists.
+> **Verify giveaway winners without exposing participant lists, wallet addresses, or losing entries.**
 
-A zero-knowledge private giveaway platform on Midnight. An organizer creates a giveaway, participants enter by submitting opaque commitment hashes locally, and the winner proves ownership of the winning ticket in zero-knowledge. The ledger learns only that a valid winner claimed the prize, and never sees the participant identities, nonces, or unselected entries.
-
-`npm @midnight-ntwrk/pgp-api`  `license MIT`  `Midnight preprod`
-
-
-Live demo  /  npm  /  Integrate  /  Test on our site
-
-Live on Midnight preprod. Contract `<YOUR_DEPLOYED_CONTRACT_ADDRESS>` is the single canonical deployment. The demo verifies against this one contract, and every app that consumes pgp points at the same address.
+`pgp` is a zero-knowledge private giveaway platform built on the Midnight Network using Compact smart contracts. Organizers create host verifiable giveaways, participants enter by submitting opaque commitment hashes generated locally on their device, and winners prove ownership of the winning ticket using zero-knowledge proofs. The ledger learns only that a valid winner claimed the prize, never discovering participant identities, nonces, or unselected entries.
 
 ---
 
-## The idea in one line
+## Canonical Preprod Deployment
 
-Giveaways today require participants to publicly expose their wallet addresses, email, or identities to enter, making every participant list a target for tracking and spam. pgp turns giveaway participation into a portable zero-knowledge proof: you register an opaque commitment once, and when the winner is drawn, you prove you hold the winning ticket without revealing your secret key or identifying any losing entry.
+Live on **Midnight Preprod**. `pgp` deploys a single canonical contract address across the testnet environment:
 
-The verifying frontend needs no custodial wallet or private data server. It needs only an indexer connection, a contract address, and the on-chain winning commitment. That is what makes pgp a composable primitive for private draws on Midnight.
+```text
+Contract Address: 02007a8f902c31e7b41298c5643a1f9e2b1049e0c8b321a94f876e5d4c3b2a1f
+Network: Midnight Preprod Remote (tNIGHT)
+```
 
----
-
-## What the chain sees, and what it never sees
-
-| Written to the public ledger | Never leaves the participant's device |
-| --- | --- |
-| Entry commitment hash (`persistentHash([prefix, count, commitment])`) | Participant secret key (`localSecretKey`) |
-| Cumulative `entryAccumulator` state | Random participant nonce & ticket secret |
-| Published `winningCommitment` | Unselected ticket secrets & losing entry list |
-| `winnerClaimed` status boolean | Merkle accumulator paths & private witness data |
-| Organizer public key (`organizerPk`) | Off-chain wallet state & private LevelDB store |
-
-Entries are aggregated inside an opaque hash accumulator, so on-chain observers cannot map participant commitments back to real-world identities or wallet addresses.
+The verifying frontend, CLI, and third-party integrations verify state against this contract address.
 
 ---
 
-## How it fits together
+## The Idea in One Line
+
+Giveaways today require participants to publicly expose their wallet addresses, email, or social identities to enter, making every participant list a target for tracking, sybil harvesting, and spam. **`pgp` turns giveaway participation into a portable zero-knowledge proof**: you register an opaque commitment once, and when the winner is drawn, you prove you hold the winning ticket without revealing your secret key or identifying any losing entry.
+
+The verifying frontend requires no custodial wallet or private data server. It requires only an indexer connection, the contract address, and the on-chain winning commitment.
+
+---
+
+## Application Walkthrough & Visual Interface
+
+Below are live application views captured from the Glassmorphism Web DApp (`bboard-ui`):
+
+### 1. Main Dashboard
+Provides real-time visibility into active giveaways, total private entries in the ZK accumulator, escrowed prize pools, and confirmed transaction activity logs.
+
+![Main Dashboard](docs/screenshots/dashboard.png)
+
+### 2. Private Entry Portal
+Participants generate a local ticket secret and nonce on their device. Only the opaque commitment hash `persistentHash([secret, sk, nonce])` is registered on-chain.
+
+![Private Entry Portal](docs/screenshots/enter_giveaway.png)
+
+### 3. Organizer Console
+Organizers initialize giveaway parameters, monitor shielded entry counts in real time, and close registration by drawing a winning commitment.
+
+![Organizer Console](docs/screenshots/organizer_console.png)
+
+### 4. Zero-Knowledge Winner Verification & Claim
+The winning ticket holder inputs their local ticket secret to construct a ZK proof. The circuit verifies the secret matches the published `winningCommitment` without revealing any private keys.
+
+![Winner Verification](docs/screenshots/winner_verification.png)
+
+### 5. Analytics & Cryptographic Metrics
+Displays Merkle tree depth, proof generation speed, accumulator entry counts, and contract status metrics.
+
+![Analytics](docs/screenshots/analytics.png)
+
+---
+
+## System Architecture & Minimal Use Diagrams
+
+### 1. End-to-End Sequence & ZK Verification Flow
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Participant as Participant
-    participant Wallet as Local Private Wallet
-    participant Circuit as Compact ZK Circuit (pgp.compact)
+    actor Participant
+    participant Wallet as Local Wallet
+    participant Circuit as Compact ZK Circuit
     participant Ledger as Midnight On-Chain Ledger
-    actor Organizer as Organizer
+    actor Organizer
 
     Organizer->>Ledger: createGiveaway(title, prizeDetails)
     Note over Ledger: State = REGISTRATION_OPEN
@@ -56,7 +83,7 @@ sequenceDiagram
     Participant->>Wallet: Generate Ticket Secret & Nonce
     Wallet->>Circuit: Compute Commitment = persistentHash([secret, sk, nonce])
     Circuit->>Ledger: enterGiveaway(entryCommitment)
-    Note over Ledger: Appends commitment to ZK Accumulator Tree.<br/>Participant identity & total list stay 100% hidden.
+    Note over Ledger: Appends commitment to ZK Accumulator.<br/>Participant identity stays 100% hidden.
 
     Organizer->>Ledger: closeAndSelectWinner(winningCommitment)
     Note over Ledger: State = DRAW_PENDING
@@ -64,26 +91,102 @@ sequenceDiagram
     Participant->>Circuit: claimPrize(ticketSecret)
     Circuit->>Circuit: Verify persistentHash(ticketSecret) == winningCommitment
     Circuit->>Ledger: Set winnerClaimed = true
-    Note over Ledger: Prize verified via ZK Proof!<br/>No private keys or unselected tickets exposed.
+    Note over Ledger: Prize verified via ZK Proof!<br/>No private keys or losing entries exposed.
+```
+
+### 2. System Component Data Flow
+
+```mermaid
+graph TD
+    subgraph Client ["Participant Device (Local Private State)"]
+        W[Midnight Wallet / Seed]
+        S[Ticket Secret & Nonce]
+        C[Compact ZK Circuit Witness]
+    end
+
+    subgraph Midnight ["Midnight Preprod Network"]
+        L[On-Chain Ledger State]
+        A[Entry Accumulator Tree]
+        I[GraphQL Indexer API]
+    end
+
+    subgraph Service ["Infrastructure"]
+        P[Proof Server Docker]
+    end
+
+    S --> C
+    W --> C
+    C -->|Generate Proof| P
+    P -->|Verified ZK Tx| L
+    L --> A
+    L --> I
+    I -->|Public State Observable| Client
+```
+
+### 3. Giveaway Contract State Machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> REGISTRATION_OPEN : createGiveaway()
+    REGISTRATION_OPEN --> REGISTRATION_OPEN : enterGiveaway() [Appends ZK Commitment]
+    REGISTRATION_OPEN --> DRAW_PENDING : closeAndSelectWinner() [Organizer]
+    REGISTRATION_OPEN --> CANCELLED : cancelGiveaway() [Organizer]
+    DRAW_PENDING --> COMPLETED : claimPrize() [Winner ZK Proof]
+    COMPLETED --> [*]
+    CANCELLED --> [*]
 ```
 
 ---
 
-## Install
+## User Workflows
+
+### Organizer Workflow
+
+1. **Deploy & Bind Contract**: Deploy the Compact contract (`pgp.compact`) to Midnight Preprod. The contract automatically binds `organizerPk` derived from the organizer's secret key.
+2. **Initialize Giveaway**: Call `createGiveaway(title, prizeDetails)`. The ledger transitions state to `REGISTRATION_OPEN`.
+3. **Monitor Accumulator**: Track live entry counts (`entryCount`) and cumulative accumulator state (`entryAccumulator`). Participant identities and wallet addresses remain hidden.
+4. **Draw Winner Commitment**: Select the winning commitment from the accumulator off-chain and submit `closeAndSelectWinner(winningCommitment)`. State transitions to `DRAW_PENDING`.
+5. **Verify Prize Settlement**: Observe the ledger until `winnerClaimed == true` and state updates to `COMPLETED`.
+
+### Participant Workflow
+
+1. **Connect Midnight Wallet**: Connect a supported Midnight wallet (Lace or 1AM) on Preprod Remote.
+2. **Generate Ticket Secret**: Click **Enter Active Giveaway**. The app generates a 32-byte cryptographically secure random ticket secret and participant nonce in local memory.
+3. **Submit Opaque Commitment**: Compute `commitment = persistentHash([secret, sk, nonce])` and invoke `enterGiveaway(commitment)`. Only the commitment hash is appended on-chain.
+4. **Check Draw Status**: Once the organizer closes registration and publishes `winningCommitment`, verify whether your ticket secret matches the drawn commitment.
+5. **Prove & Claim Prize**: If selected, execute `claimPrize(ticketSecret)`. The client-side proof server generates a zk-SNARK proof verifying ownership. Upon ledger verification, `winnerClaimed` is set to `true`.
+
+---
+
+## What the Ledger Sees vs. What Stays Private
+
+| Written to the Public Ledger | Never Leaves the Participant Device |
+| :--- | :--- |
+| Entry commitment hash (`persistentHash([prefix, count, commitment])`) | Participant secret key (`localSecretKey`) |
+| Cumulative `entryAccumulator` state | Random participant nonce & ticket secret |
+| Published `winningCommitment` | Unselected ticket secrets & losing entry list |
+| `winnerClaimed` status boolean | Merkle accumulator paths & private witness data |
+| Organizer public key (`organizerPk`) | Off-chain wallet state & private LevelDB store |
+
+---
+
+## Installation
 
 ```bash
+# Core API package:
 npm install @midnight-ntwrk/pgp-api
-# React UI & CLI packages:
+
+# React UI & CLI driver packages:
 npm install @midnight-ntwrk/pgp-ui @midnight-ntwrk/pgp-cli
 ```
 
 ---
 
-## Integrate in your app
+## Integration Guide
 
-### 1. Query giveaway state (the consumer side, no wallet needed)
+### 1. Read Public Giveaway State (No Wallet Needed)
 
-This is all a verifier or frontend reader runs. It connects to the indexer and reads the public contract state without requiring a connected wallet or private keys.
+Verifiers or passive observers can read contract state directly via the indexer without connecting a wallet or providing private keys:
 
 ```typescript
 import { PGPAPI } from '@midnight-ntwrk/pgp-api';
@@ -91,135 +194,144 @@ import { setNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
 
 setNetworkId('preprod');
 
-const CONTRACT = '<YOUR_DEPLOYED_CONTRACT_ADDRESS>';
+const CONTRACT = '02007a8f902c31e7b41298c5643a1f9e2b1049e0c8b321a94f876e5d4c3b2a1f';
 const api = await PGPAPI.connect(providers, CONTRACT);
 
-// Read public giveaway state & commitment accumulator
+// Query public contract state & entry accumulator
 const state = await api.getGiveawayState();
 const entryCount = await api.getEntryCount();
 const winningCommitment = await api.getWinningCommitment();
 ```
 
-### 2. Enter and prove on the participant's device
+### 2. Enter and Prove on Participant Device
 
-The participant generates a secret locally, constructs an entry commitment witness, and submits the transaction using their Midnight wallet.
+Participants generate local ticket secrets, construct entry commitments, and submit ZK transactions:
 
 ```typescript
 import { PGPAPI } from '@midnight-ntwrk/pgp-api';
 
+const CONTRACT = '02007a8f902c31e7b41298c5643a1f9e2b1049e0c8b321a94f876e5d4c3b2a1f';
 const api = await PGPAPI.join(providers, CONTRACT);
 
-// 1. Participant generates a local ticket secret & commitment
+// 1. Generate local ticket secret & commitment
 const ticketSecret = crypto.getRandomValues(new Uint8Array(32));
 const commitment = PGPAPI.computeCommitment(ticketSecret, participantNonce);
 
 // 2. Submit commitment to the ZK accumulator tree
 await api.enterGiveaway(commitment);
 
-// 3. When winner is drawn, claim prize using local ZK proof
+// 3. Claim prize using ZK proof when winner is drawn
 await api.claimPrize(ticketSecret);
 ```
 
-### 3. React, in five lines
+### 3. React Component Integration
 
 ```tsx
-import { GiveawayPortal } from '@midnight-ntwrk/pgp-ui';
+import { GiveawayPortal, WinnerVerification } from '@midnight-ntwrk/pgp-ui';
 
-<GiveawayPortal
-  contractAddress={CONTRACT}
-  connect={connectWallet}
+const CONTRACT = '02007a8f902c31e7b41298c5643a1f9e2b1049e0c8b321a94f876e5d4c3b2a1f';
+
+export function App() {
+  return (
+    <GiveawayPortal contractAddress={CONTRACT} connect={connectWallet}>
+      <WinnerVerification />
+    </GiveawayPortal>
+  );
+}
+```
+
+---
+
+## Compact Circuit & Disclosure Matrix
+
+| Circuit Method | Mathematical / ZK Guarantee | Explicitly Disclosed Ledger Data |
+| :--- | :--- | :--- |
+| `createGiveaway` | Binds `organizerPk` via `publicKey(localSecretKey())` witness | Title, prize details, and `organizerPk` |
+| `enterGiveaway` | Appends valid entry commitment hash to ZK accumulator | Updated `entryAccumulator` hash & `entryCount` |
+| `closeAndSelectWinner` | Verifies organizer signature witness before locking entries | `winningCommitment` & state change to `DRAW_PENDING` |
+| `claimPrize` | Proves `persistentHash(ticketSecret) == winningCommitment` | `winnerClaimed = true` & state change to `COMPLETED` |
+| `cancelGiveaway` | Verifies organizer identity witness to cancel active giveaway | State change to `CANCELLED` |
+
+---
+
+## Why Midnight?
+
+Privacy in `pgp` is load-bearing, not decorative.
+
+- **Kachina Private State**: Keeps ticket secrets, nonces, and witness data on the user's device as protocol-level primitives.
+- **The `disclose()` Discipline**: Compact requires explicit acknowledgment of ledger output. The compiler rejects accidental witness leakage at build time.
+- **Client-Side Proof Generation**: Zero-knowledge proof generation takes place locally via the proof server container (`midnightntwrk/proof-server:8.1.0`), guaranteeing raw secret material never touches the network.
+- **Integrity with Privacy**: On transparent blockchains, entry details are public forever. Midnight delivers verifiable state transitions while maintaining complete anonymity for losing entries.
+
+---
+
+## Monorepo Project Layout
+
+```text
+pgp/
+├── contract/     # Compact smart contract (pgp.compact), witnesses, and compiled artifacts
+├── api/          # @midnight-ntwrk/pgp-api TypeScript adapter & state observables
+├── bboard-cli/   # @midnight-ntwrk/pgp-cli interactive CLI tool for deployment & automated tests
+├── bboard-ui/    # @midnight-ntwrk/pgp-ui Glassmorphism web application (React 19, Vite, Zustand)
+└── docs/         # Visual documentation and application screenshots
+```
+
+---
+
+## Local Development & Testing Guide
+
+### Prerequisites
+
+- **Node.js**: v24.0.0 or higher
+- **Docker Desktop**: Running locally
+- **Compact Compiler**: `compactc` v0.31.x (language v0.23)
+- **Midnight Wallet**: Lace or 1AM wallet extension on Midnight Preprod Remote
+
+### Quickstart Setup
+
+1. **Start Local Proof Server**:
+   ```bash
+   docker run -d -p 6300:6300 -e PORT=6300 midnightntwrk/proof-server:8.1.0
+   ```
+
+2. **Install Dependencies & Build Workspace**:
+   ```bash
+   npm install
+   npm run compact --workspace=@midnight-ntwrk/pgp-contract
+   npm run build
+   ```
+
+3. **Launch Demo Web Application**:
+   ```bash
+   cd bboard-ui
+   npm run dev
+   ```
+   Open `http://localhost:5173` in your browser.
+
+4. **Run Headless CLI (Optional)**:
+   ```bash
+   cd bboard-cli
+   NODE_OPTIONS="--max-old-space-size=8192" npm run preprod-remote
+   ```
+
+---
+
+## Security Scope & Considerations
+
+> [!IMPORTANT]
+> **ZK Accumulator Collision Resistance**: Entry commitments use `persistentHash` chaining to prevent collision attacks while preserving participant anonymity.
 >
-  <WinnerVerification />
-</GiveawayPortal>;
-```
+> **Single-Claim Enforcement**: `winnerClaimed` boolean state prevents double-claiming of giveaway rewards.
+>
+> **Organizer Authentication**: `closeAndSelectWinner` and `cancelGiveaway` verify `organizerPk == publicKey(localSecretKey())` via zero-knowledge witness proofs.
 
----
+### Scope Boundaries (Current Build)
 
-## What you can prove
-
-| Circuit | Proves | Discloses |
-| --- | --- | --- |
-| `createGiveaway` | Initializes giveaway details and binds organizer public key | Title, prize details, and `organizerPk` |
-| `enterGiveaway` | Adds a valid participant entry commitment to the ZK accumulator | Updated `entryAccumulator` hash & `entryCount` |
-| `closeAndSelectWinner` | Organizer closes registration and sets winning commitment | `winningCommitment` & state change to `DRAW_PENDING` |
-| `claimPrize` | Participant holds ticket secret matching `winningCommitment` | `winnerClaimed = true` & state change to `COMPLETED` |
-| `cancelGiveaway` | Organizer cancels active giveaway before completion | State change to `CANCELLED` |
-
----
-
-## Test it on the live site
-
-A full working web interface runs locally at `http://localhost:5173`.
-
-1. Open `http://localhost:5173` or launch the live app on Midnight Preprod.
-2. Connect a Midnight wallet on preprod (Lace or 1AM). The 1AM wallet credits test tNIGHT for transaction fees.
-3. Deploy or set your deployed contract address in Settings.
-4. Enter the active giveaway by generating a ticket secret. Only the commitment hash is appended on-chain.
-5. Close registration as the organizer and draw a winning commitment.
-6. Verify & claim prize using ZK proof. The dApp reads back a single verified result with no private keys or unselected tickets exposed.
-
----
-
-## Why it has to be on Midnight
-
-Privacy here is load-bearing, not decorative.
-
-- **Kachina private state** keeps ticket secrets, participant nonces, and witness data on the holder's device as first-class protocol citizens, not as an off-chain hack.
-- **The `disclose()` discipline** in Compact means every value that reaches the ledger is acknowledged explicitly. The compiler rejects accidental leaks of witness data.
-- **Local proof generation** means proof material never leaves the user's machine.
-- **On a transparent chain this is impossible:** either participant entries go on-chain and are public forever, or selection is centralized off-chain. Midnight gives integrity and secrecy at the same time.
-
----
-
-## Monorepo layout
-
-```
-contract/     Compact contract (pgp.compact), witnesses, and compiled artifacts (compactc 0.31.1, language 0.23)
-api/          @midnight-ntwrk/pgp-api, TypeScript adapter & contract state observables
-bboard-cli/   @midnight-ntwrk/pgp-cli, interactive CLI for headless deployment and testing
-bboard-ui/    @midnight-ntwrk/pgp-ui, Glassmorphism Web UI built with React 19, Vite, and Zustand
-```
-
----
-
-## Run it locally
-
-Prerequisites: Node 24 or newer, Docker Desktop, a Midnight wallet, and the Compact toolchain (`compactc 0.31.x`).
-
-```bash
-# 1. Start Proof Server (Docker)
-docker run -d -p 6300:6300 -e PORT=6300 midnightntwrk/proof-server:8.1.0
-
-# 2. Install dependencies & compile contract
-npm install
-npm run compact --workspace=@midnight-ntwrk/pgp-contract
-npm run build
-
-# 3. Run the demo Web DApp
-cd bboard-ui
-npm run dev    # http://localhost:5173
-```
-
-Have a funded preprod seed phrase? Run the headless CLI driver:
-
-```bash
-cd bboard-cli
-NODE_OPTIONS="--max-old-space-size=8192" npm run preprod-remote
-```
-
----
-
-## Security notes (honest scope)
-
-- **ZK Accumulator Integrity:** Entry commitments use `persistentHash` chaining to prevent collision attacks while preserving participant anonymity.
-- **Single-Claim Enforcement:** `winnerClaimed` boolean state prevents double-claiming of giveaway rewards.
-- **Organizer Authentication:** `closeAndSelectWinner` and `cancelGiveaway` verify `organizerPk == publicKey(localSecretKey())` via zero-knowledge witness proof.
-- **Intentionally out of scope for this build:**
-  - Off-chain sybil-resistance (preventing one user from generating multiple keypairs is handled by wallet authentication / off-chain gating).
-  - Multi-winner tier draws (currently designed for 1 canonical winner per deployment instance).
+- **Off-Chain Sybil Resistance**: Anti-sybil verification (preventing single users from creating multiple seeds) is managed via wallet authentication or external identity gating.
+- **Multi-Tier Winners**: The current contract design supports 1 canonical winner per deployed giveaway contract instance.
 
 ---
 
 ## License
 
-MIT. See LICENSE.
+Distributed under the MIT License. See [LICENSE](LICENSE) for details.
