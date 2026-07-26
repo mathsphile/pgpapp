@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main, master ]
 
+permissions:
+  contents: read
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -14,26 +17,15 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Compact Compiler
-        uses: midnightntwrk/setup-compact-action@836895c8fffbbea6bd986af2b17e8941ff29d1f8
-        with:
-          compact-version: '0.31.0'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24.x'
-          cache: 'npm'
+          node-version: '20'
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm install
 
-      - name: Compile Compact Contracts
-        run: npm run compact --workspace=@midnight-ntwrk/pgp-contract
-
-      - name: Run Unit Tests
+      - name: Run Contract Unit Tests
         run: npm run test --workspace=@midnight-ntwrk/pgp-contract -- --run
 
       - name: Build Contract Package
