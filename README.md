@@ -71,27 +71,27 @@ Displays Merkle tree depth, proof generation speed, accumulator entry counts, an
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Participant
-    participant Wallet as Local Wallet
-    participant Circuit as Compact ZK Circuit
-    participant Ledger as Midnight On-Chain Ledger
-    actor Organizer
+    actor P as Participant
+    participant W as Local Wallet
+    participant C as Compact ZK Circuit
+    participant L as Midnight On-Chain Ledger
+    actor O as Organizer
 
-    Organizer->>Ledger: createGiveaway(title, prizeDetails)
-    Note over Ledger: State = REGISTRATION_OPEN
+    O->>L: createGiveaway(title, prizeDetails)
+    Note over L: State = REGISTRATION_OPEN
 
-    Participant->>Wallet: Generate Ticket Secret & Nonce
-    Wallet->>Circuit: Compute Commitment = persistentHash([secret, sk, nonce])
-    Circuit->>Ledger: enterGiveaway(entryCommitment)
-    Note over Ledger: Appends commitment to ZK Accumulator.<br/>Participant identity stays 100% hidden.
+    P->>W: Generate Ticket Secret & Nonce
+    W->>C: Compute Commitment = persistentHash([secret, sk, nonce])
+    C->>L: enterGiveaway(entryCommitment)
+    Note over L: Appends commitment to ZK Accumulator.<br/>Participant identity stays 100% hidden.
 
-    Organizer->>Ledger: closeAndSelectWinner(winningCommitment)
-    Note over Ledger: State = DRAW_PENDING
+    O->>L: closeAndSelectWinner(winningCommitment)
+    Note over L: State = DRAW_PENDING
 
-    Participant->>Circuit: claimPrize(ticketSecret)
-    Circuit->>Circuit: Verify persistentHash(ticketSecret) == winningCommitment
-    Circuit->>Ledger: Set winnerClaimed = true
-    Note over Ledger: Prize verified via ZK Proof!<br/>No private keys or losing entries exposed.
+    P->>C: claimPrize(ticketSecret)
+    C->>C: Verify persistentHash(ticketSecret) == winningCommitment
+    C->>L: Set winnerClaimed = true
+    Note over L: Prize verified via ZK Proof!<br/>No private keys or losing entries exposed.
 ```
 
 ### 2. System Component Data Flow
