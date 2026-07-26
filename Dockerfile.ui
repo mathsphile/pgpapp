@@ -8,8 +8,8 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 COPY contract/package.json ./contract/
 COPY api/package.json ./api/
-COPY bboard-cli/package.json ./bboard-cli/
-COPY bboard-ui/package.json ./bboard-ui/
+COPY bboard-cli/package.json ./pgp-cli/
+COPY bboard-ui/package.json ./pgp-ui/
 
 RUN npm ci
 
@@ -25,7 +25,7 @@ RUN npm run build --workspace=@midnight-ntwrk/pgp-ui
 # Production runtime stage using Nginx
 FROM nginx:alpine AS runner
 
-COPY --from=builder /app/bboard-ui/dist /usr/share/nginx/html
+COPY --from=builder /app/pgp-ui/dist /usr/share/nginx/html
 
 EXPOSE 80
 
