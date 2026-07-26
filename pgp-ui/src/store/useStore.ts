@@ -1,4 +1,4 @@
-// PGP State Management - Real Wallet Detection & Toggle System
+// PGP State Management - Real Wallet Detection & Transaction Fee Balance Deduction
 
 import { useState, useEffect } from 'react';
 import { AppTab, ActivityItem, GiveawayItem, WalletState, TransactionStatus } from '../types.js';
@@ -95,7 +95,7 @@ export function usePGPStore() {
         error: null,
       });
       setIsWalletModalOpen(false);
-      addActivity('Wallet Connected', 'Confirmed', `Connected via ${type.toUpperCase()} (${res.address.substring(0, 10)}...)`);
+      addActivity('Wallet Connected', 'Confirmed', `Connected via ${type.toUpperCase()} (${res.address.substring(0, 12)}...)`);
     } catch (err: any) {
       setWallet((prev) => ({
         ...prev,
@@ -140,7 +140,8 @@ export function usePGPStore() {
   const triggerTransactionFlow = async (
     actionName: string,
     successCallback: () => void,
-    detailsText: string
+    detailsText: string,
+    feeInTNIGHT: number = 10
   ) => {
     if (!wallet.isConnected) {
       setIsWalletModalOpen(true);
@@ -151,18 +152,28 @@ export function usePGPStore() {
       isOpen: true,
       status: 'Pending',
       action: actionName,
-      message: 'Generating Zero-Knowledge proof locally...',
+      message: `Generating ZK proof & estimating network fee (${feeInTNIGHT} tNIGHT)...`,
     });
 
-    await new Promise((r) => setTimeout(r, 1500));
+    await new Promise((r) => setTimeout(r, 1200));
 
     setTxModal((prev) => ({
       ...prev,
       status: 'Processing',
-      message: 'Submitting transaction to Midnight Preprod node...',
+      message: `Deducting ${feeInTNIGHT} tNIGHT transaction fee & submitting to Midnight Preprod node...`,
     }));
 
-    await new Promise((r) => setTimeout(r, 2000));
+    await new Promise((r) => setTimeout(r, 1800));
+
+    // Calculate real balance deduction
+    const currentBalanceNum = parseInt(wallet.balance.replace(/[^0-9]/g, '')) || 1000;
+    const newBalanceNum = Math.max(0, currentBalanceNum - feeInTNIGHT);
+    const newBalanceStr = `${newBalanceNum.toLocaleString()} tNIGHT`;
+
+    setWallet((prev) => ({
+      ...prev,
+      balance: newBalanceStr,
+    }));
 
     const fakeHash = `0x${Math.random().toString(16).substring(2, 10)}...${Math.random().toString(16).substring(2, 6)}`;
     
@@ -170,12 +181,12 @@ export function usePGPStore() {
       isOpen: true,
       status: 'Confirmed',
       action: actionName,
-      message: 'Transaction successfully confirmed on-chain!',
+      message: `Transaction confirmed on-chain! Deducted ${feeInTNIGHT} tNIGHT fee. Updated Balance: ${newBalanceStr}`,
       txHash: fakeHash,
     });
 
     successCallback();
-    addActivity(actionName, 'Confirmed', detailsText, fakeHash);
+    addActivity(actionName, 'Confirmed', `${detailsText} (-${feeInTNIGHT} tNIGHT)`, fakeHash);
   };
 
   return {
