@@ -29,19 +29,13 @@ jobs:
         with:
           node-version: "24"
 
-      # A bug in npm optional dependencies fails the build, which is fixed in npm 11 or later
-      # but the setup-node action isn't using a newer version of npm yet
-      # See https://github.com/npm/cli/issues/4828
       - name: Update NPM
         run: |
           npm install -g npm@latest
           npm --version
 
-      # We use --legacy-peer-deps because as of v3.4.1 vite-plugin-wasm doesn't play well with vite 7
-      # So this allows them to be installed regardless; They *have* implemented support, they just haven't published a release yet
-      # https://github.com/Menci/vite-plugin-wasm/pull/73
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm ci
 
       - name: Compile and test contract
         working-directory: contract
@@ -53,12 +47,12 @@ jobs:
         run: |
           npm run ci
 
-      - name: Compile bboard-cli
-        working-directory: bboard-cli
+      - name: Compile pgp-cli
+        working-directory: pgp-cli
         run: |
           npm run ci
 
-      - name: Compile bboard-ui
-        working-directory: bboard-ui
+      - name: Compile pgp-ui
+        working-directory: pgp-ui
         run: |
           npm run ci
