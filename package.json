@@ -17,7 +17,9 @@
     ]
   },
   "scripts": {
-    "build": "npm run build --workspace=@midnight-ntwrk/pgp-contract && npm run build --workspace=@midnight-ntwrk/pgp-api && npm run build --workspace=@midnight-ntwrk/pgp-ui"
+    "build": "npm run build --workspace=@midnight-ntwrk/pgp-contract && npm run build --workspace=@midnight-ntwrk/pgp-api && npm run build --workspace=@midnight-ntwrk/pgp-ui",
+    "dev": "npm run dev --workspace=@midnight-ntwrk/pgp-ui",
+    "preview": "npm run preview --workspace=@midnight-ntwrk/pgp-ui"
   },
   "dependencies": {
     "@midnight-ntwrk/dapp-connector-api": "4.0.1",
