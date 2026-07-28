@@ -10,7 +10,7 @@ export type PGPPrivateState = {
 
 export const createPGPPrivateState = (
   secretKey: Uint8Array,
-  participantNonce: Uint8Array = new Uint8Array(32)
+  participantNonce: Uint8Array = new Uint8Array(32),
 ): PGPPrivateState => ({
   secretKey,
   participantNonce,

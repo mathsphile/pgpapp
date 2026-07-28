@@ -1,4 +1,4 @@
-// Private Giveaway Platform (PGP) Main App Component - White & Emerald Theme with Wallet Connection Toggle
+// Private Giveaway Platform (PGP) Main App Component - Real Midnight Indexer Wiring
 
 import React from 'react';
 import { Navbar } from './components/Navbar.js';
@@ -17,22 +17,17 @@ import './index.css';
 
 export const App: React.FC = () => {
   const {
-    activeTab,
-    setActiveTab,
-    contractAddress,
-    setContractAddress,
-    giveaway,
-    setGiveaway,
+    activeTab, setActiveTab,
+    contractAddress, setContractAddress,
+    giveaway, setGiveaway,
     activities,
+    indexerConnected,
     wallet,
-    isWalletModalOpen,
-    setIsWalletModalOpen,
-    connectWallet,
-    disconnectWallet,
-    toggleWalletConnection,
-    txModal,
-    setTxModal,
-    triggerTransactionFlow,
+    isWalletModalOpen, setIsWalletModalOpen,
+    connectWallet, disconnectWallet, toggleWalletConnection,
+    txModal, setTxModal,
+    enterGiveawayAction, claimPrizeAction, createGiveawayAction,
+    closeAndSelectWinnerAction, cancelGiveawayAction,
   } = usePGPStore();
 
   return (
@@ -56,7 +51,7 @@ export const App: React.FC = () => {
         )}
 
         {activeTab === 'dashboard' && (
-          <Dashboard giveaway={giveaway} activities={activities} setActiveTab={setActiveTab} />
+          <Dashboard giveaway={giveaway} activities={activities} indexerConnected={indexerConnected} setActiveTab={setActiveTab} />
         )}
 
         {activeTab === 'giveaways' && (
@@ -66,7 +61,13 @@ export const App: React.FC = () => {
             title="Connect Wallet to Enter Giveaway"
             description="Participating in private giveaways requires connecting your Midnight Wallet to generate local ZK ticket commitments."
           >
-            <GiveawayPortal giveaway={giveaway} triggerTransactionFlow={triggerTransactionFlow} setGiveaway={setGiveaway} />
+            <GiveawayPortal
+              giveaway={giveaway}
+              enterGiveawayAction={enterGiveawayAction}
+              contractAddress={contractAddress}
+              indexerConnected={indexerConnected}
+              setGiveaway={setGiveaway}
+            />
           </WalletGate>
         )}
 
@@ -75,9 +76,15 @@ export const App: React.FC = () => {
             wallet={wallet}
             onOpenWalletModal={() => setIsWalletModalOpen(true)}
             title="Connect Wallet to Verify & Claim Prize"
-            description="Proving ticket ownership and claiming giveaway prizes requires connecting your Midnight Wallet to generate local zk-SNARK proofs."
+            description="Proving ticket ownership and claiming giveaway prizes requires connecting your Midnight Wallet to generate zk-SNARK proofs."
           >
-            <WinnerVerification giveaway={giveaway} triggerTransactionFlow={triggerTransactionFlow} setGiveaway={setGiveaway} />
+            <WinnerVerification
+              giveaway={giveaway}
+              claimPrizeAction={claimPrizeAction}
+              contractAddress={contractAddress}
+              indexerConnected={indexerConnected}
+              setGiveaway={setGiveaway}
+            />
           </WalletGate>
         )}
 
@@ -88,12 +95,20 @@ export const App: React.FC = () => {
             title="Connect Wallet for Organizer Actions"
             description="Creating giveaways, drawing winners, or cancelling registration requires connecting your Midnight Wallet with organizer permissions."
           >
-            <OrganizerConsole giveaway={giveaway} triggerTransactionFlow={triggerTransactionFlow} setGiveaway={setGiveaway} />
+            <OrganizerConsole
+              giveaway={giveaway}
+              createGiveawayAction={createGiveawayAction}
+              closeAndSelectWinnerAction={closeAndSelectWinnerAction}
+              cancelGiveawayAction={cancelGiveawayAction}
+              contractAddress={contractAddress}
+              indexerConnected={indexerConnected}
+              setGiveaway={setGiveaway}
+            />
           </WalletGate>
         )}
 
         {activeTab === 'analytics' && (
-          <AnalyticsView giveaway={giveaway} />
+          <AnalyticsView giveaway={giveaway} indexerConnected={indexerConnected} />
         )}
 
         {activeTab === 'settings' && (

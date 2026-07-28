@@ -1,4 +1,5 @@
-// Production Midnight Network DApp Wallet Connector (Lace & 1AM Wallet)
+// Midnight Network Wallet Connector - Real Lace & 1AM Extension Detection
+// Returns real on-chain state from installed extensions; never returns fabricated addresses.
 
 declare global {
   interface Window {
@@ -34,6 +35,43 @@ export function detectMidnightWallets(): WalletDetectionResult {
   };
 }
 
+async function resolveWalletApi(provider: any): Promise<any> {
+  if (typeof provider?.enable === 'function') {
+    return provider.enable();
+  }
+  if (typeof provider?.connect === 'function') {
+    return provider.connect();
+  }
+  if (typeof provider === 'function') {
+    return provider();
+  }
+  return provider;
+}
+
+function extractAddress(state: any): string | null {
+  if (!state) return null;
+  return state?.address
+    ?? state?.coinPublicKey
+    ?? state?.publicAddress
+    ?? state?.accountAddress
+    ?? state?.unshieldedAddress
+    ?? null;
+}
+
+async function fetchBalance(api: any, address: string | null): Promise<string> {
+  if (!api || typeof api?.balance !== 'function') return '--';
+  try {
+    const bal = await api.balance();
+    if (bal == null) return '--';
+    if (typeof bal === 'string') return bal;
+    if (typeof bal === 'number') return bal.toString();
+    if (typeof bal === 'bigint') return bal.toString();
+    return JSON.stringify(bal);
+  } catch {
+    return '--';
+  }
+}
+
 export async function connectMidnightWallet(
   providerType: 'lace' | '1am' | 'seed',
   seedPhrase?: string
@@ -41,68 +79,54 @@ export async function connectMidnightWallet(
   const detection = detectMidnightWallets();
 
   if (providerType === 'lace') {
-    if (detection.isLaceInstalled && detection.laceProvider) {
-      try {
-        const provider = detection.laceProvider;
-        const api = typeof provider.enable === 'function'
-          ? await provider.enable()
-          : (typeof provider.connect === 'function'
-              ? await provider.connect()
-              : (typeof provider === 'function' ? await provider() : provider));
-
-        const state = typeof api?.state === 'function' ? await api.state() : api;
-        const address = state?.address || state?.coinPublicKey || state?.publicAddress || state?.accountAddress || 'mn_addr_preprod1qsrk78vxtc9y2neyfh2d7ns3mxxh4xq68pptldmr3atg2d850eusj4n55v';
-        return {
-          address,
-          network: 'Midnight Preprod Remote',
-          balance: '1,000 tNIGHT',
-        };
-      } catch (err: any) {
-        throw new Error(err.message || 'Lace Wallet authorization declined.');
-      }
+    if (!detection.isLaceInstalled || !detection.laceProvider) {
+      throw new Error('Lace Wallet extension for Midnight Network is not installed. Install it from your browser store.');
     }
-    throw new Error('Lace Wallet extension for Midnight Network is not installed in your browser. Please install Lace Wallet to proceed.');
+    try {
+      const api = await resolveWalletApi(detection.laceProvider);
+      const address = extractAddress(api?.state ? await api.state() : api);
+      if (!address) {
+        throw new Error('Lace returned no address. Ensure your Lace wallet is unlocked and set to the Preprod network.');
+      }
+      const state = typeof api?.state === 'function' ? await api.state() : api;
+      const balance = await fetchBalance(state, address);
+      return {
+        address,
+        network: 'Midnight Preprod Remote',
+        balance,
+      };
+    } catch (err: any) {
+      throw new Error(err?.message || 'Lace Wallet authorization declined.');
+    }
   }
 
   if (providerType === '1am') {
-    if (detection.is1AMInstalled && detection.oneAMProvider) {
-      try {
-        const provider = detection.oneAMProvider;
-        const api = typeof provider.enable === 'function'
-          ? await provider.enable()
-          : (typeof provider.connect === 'function'
-              ? await provider.connect()
-              : (typeof provider === 'function' ? await provider() : provider));
-
-        const state = typeof api?.state === 'function' ? await api.state() : api;
-        const address = state?.address || state?.coinPublicKey || state?.publicAddress || state?.accountAddress || 'mn_addr_preprod1q9a8c7b6v5x4z3m2n1p0o9i8u7y6t5r4e3w2q1a0b9c8d7e6f5';
-        return {
-          address,
-          network: 'Midnight Preprod Remote',
-          balance: '1,000 tNIGHT',
-        };
-      } catch (err: any) {
-        throw new Error(err.message || '1AM Wallet authorization declined.');
-      }
+    if (!detection.is1AMInstalled || !detection.oneAMProvider) {
+      throw new Error('1AM Wallet extension for Midnight Network is not installed. Install it from your browser store.');
     }
-
-    // Direct 1AM Midnight Testnet RPC Wallet Provider
-    return {
-      address: 'mn_addr_preprod1q9a8c7b6v5x4z3m2n1p0o9i8u7y6t5r4e3w2q1a0b9c8d7e6f5',
-      network: 'Midnight Preprod Remote',
-      balance: '1,000 tNIGHT',
-    };
+    try {
+      const api = await resolveWalletApi(detection.oneAMProvider);
+      const address = extractAddress(api?.state ? await api.state() : api);
+      if (!address) {
+        throw new Error('1AM Wallet returned no address. Ensure it is unlocked and set to the Preprod network.');
+      }
+      const state = typeof api?.state === 'function' ? await api.state() : api;
+      const balance = await fetchBalance(state, address);
+      return {
+        address,
+        network: 'Midnight Preprod Remote',
+        balance,
+      };
+    } catch (err: any) {
+      throw new Error(err?.message || '1AM Wallet authorization declined.');
+    }
   }
 
   if (providerType === 'seed') {
     if (!seedPhrase || seedPhrase.trim().length < 12) {
       throw new Error('Please enter a valid 12 or 24 word Midnight seed phrase.');
     }
-    return {
-      address: 'mn_addr_preprod1q7x8y9z0a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u',
-      network: 'Midnight Preprod Local Witness',
-      balance: '1,000 tNIGHT',
-    };
+    throw new Error('Seed-based wallet import is not yet supported in-browser. Use the CLI (`cd pgp-cli && npm run preprod-remote`) to import a seed wallet locally.');
   }
 
   throw new Error('Unsupported wallet provider type.');

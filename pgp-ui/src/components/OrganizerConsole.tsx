@@ -1,15 +1,22 @@
-// Organizer Console Component for PGP DApp - White & Emerald Theme
+// Organizer Console - Real Circuit Calls via PGPAPI
 
 import React, { useState } from 'react';
 import { GiveawayItem } from '../types.js';
 
 interface OrganizerConsoleProps {
   giveaway: GiveawayItem;
-  triggerTransactionFlow: (actionName: string, successCallback: () => void, detailsText: string) => Promise<void>;
+  createGiveawayAction: (title: string, prizeDetails: string, onSuccess: () => void) => void;
+  closeAndSelectWinnerAction: (winningCommitment: string, onSuccess: () => void) => void;
+  cancelGiveawayAction: (onSuccess: () => void) => void;
+  contractAddress: string;
+  indexerConnected: boolean;
   setGiveaway: React.Dispatch<React.SetStateAction<GiveawayItem>>;
 }
 
-export const OrganizerConsole: React.FC<OrganizerConsoleProps> = ({ giveaway, triggerTransactionFlow, setGiveaway }) => {
+export const OrganizerConsole: React.FC<OrganizerConsoleProps> = ({
+  giveaway, createGiveawayAction, closeAndSelectWinnerAction, cancelGiveawayAction,
+  contractAddress, indexerConnected, setGiveaway,
+}) => {
   const [newTitle, setNewTitle] = useState<string>('');
   const [newPrize, setNewPrize] = useState<string>('');
   const [winningCommitmentInput, setWinningCommitmentInput] = useState<string>('');
@@ -19,20 +26,13 @@ export const OrganizerConsole: React.FC<OrganizerConsoleProps> = ({ giveaway, tr
       alert('Please enter title and prize details.');
       return;
     }
-
-    triggerTransactionFlow(
-      'New Giveaway Created',
-      () => {
-        setGiveaway((prev) => ({
-          ...prev,
-          title: newTitle,
-          prizeDetails: newPrize,
-          state: 'REGISTRATION_OPEN',
-          entryCount: 0,
-        }));
-      },
-      `Created giveaway "${newTitle}" on Midnight Preprod`
-    );
+    if (!contractAddress) {
+      alert('No contract connected. Enter a deployed contract address in Settings first.');
+      return;
+    }
+    createGiveawayAction(newTitle, newPrize, () => {
+      setGiveaway((prev) => ({ ...prev, title: newTitle, prizeDetails: newPrize, state: 'REGISTRATION_OPEN', entryCount: 0 }));
+    });
   };
 
   const handleCloseAndSelectWinner = () => {
@@ -40,37 +40,28 @@ export const OrganizerConsole: React.FC<OrganizerConsoleProps> = ({ giveaway, tr
       alert('Please provide winning commitment hex.');
       return;
     }
-
-    triggerTransactionFlow(
-      'Giveaway Closed & Winner Selected',
-      () => {
-        setGiveaway((prev) => ({
-          ...prev,
-          state: 'DRAW_PENDING',
-          winningCommitment: winningCommitmentInput,
-        }));
-      },
-      `Selected winning commitment ${winningCommitmentInput.substring(0, 16)}...`
-    );
+    closeAndSelectWinnerAction(winningCommitmentInput, () => {
+      setGiveaway((prev) => ({ ...prev, state: 'DRAW_PENDING', winningCommitment: winningCommitmentInput }));
+    });
   };
 
   const handleCancelGiveaway = () => {
-    triggerTransactionFlow(
-      'Giveaway Cancelled',
-      () => {
-        setGiveaway((prev) => ({
-          ...prev,
-          state: 'CANCELLED',
-        }));
-      },
-      'Giveaway registration cancelled by organizer'
-    );
+    cancelGiveawayAction(() => {
+      setGiveaway((prev) => ({ ...prev, state: 'CANCELLED' }));
+    });
   };
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      
-      {/* Create Giveaway Panel */}
+
+      {!indexerConnected && (
+        <div className="glass-panel" style={{ padding: '24px', background: '#fef3c7', border: '1px solid #f59e0b' }}>
+          <p style={{ color: '#78350f', fontSize: '0.9rem', fontWeight: '600' }}>
+            ⚠️ No contract connected. Provide a deployed PGP contract address on the Settings tab first.
+          </p>
+        </div>
+      )}
+
       <div className="glass-panel" style={{ padding: '36px', background: '#ffffff' }}>
         <h3 style={{ fontSize: '1.4rem', marginBottom: '16px', color: '#0f172a' }}>⚡ Create New Private Giveaway</h3>
 
@@ -85,33 +76,31 @@ export const OrganizerConsole: React.FC<OrganizerConsoleProps> = ({ giveaway, tr
             <input className="input-glass" placeholder="e.g. 5,000 tNIGHT + Midnight Developer Pass" value={newPrize} onChange={(e) => setNewPrize(e.target.value)} style={{ padding: '14px' }} />
           </div>
 
-          <button className="btn-primary" onClick={handleCreateGiveaway} style={{ justifyContent: 'center', padding: '14px' }}>
+          <button className="btn-primary" onClick={handleCreateGiveaway} style={{ justifyContent: 'center', padding: '14px', opacity: indexerConnected ? 1 : 0.5 }} disabled={!indexerConnected}>
             ➕ Deploy Giveaway Configuration to Ledger
           </button>
         </div>
       </div>
 
-      {/* Draw Winner Panel */}
       <div className="glass-panel" style={{ padding: '36px', background: '#ffffff' }}>
         <h3 style={{ fontSize: '1.4rem', marginBottom: '16px', color: '#0f172a' }}>🎲 Close Entries & Select Winning Commitment</h3>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
           <div>
             <label style={{ fontSize: '0.9rem', color: '#334155', fontWeight: '600', marginBottom: '6px', display: 'block' }}>Winning Commitment Hash (64-char Hex):</label>
-            <input className="input-glass" placeholder="e.g. 0x46aff717417086838261bea1896c2b8b" value={winningCommitmentInput} onChange={(e) => setWinningCommitmentInput(e.target.value)} style={{ fontFamily: 'monospace', padding: '14px' }} />
+            <input className="input-glass" placeholder="e.g. 46aff717417086838261bea1896c2b8b" value={winningCommitmentInput} onChange={(e) => setWinningCommitmentInput(e.target.value)} style={{ fontFamily: 'monospace', padding: '14px' }} />
           </div>
 
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            <button className="btn-primary" onClick={handleCloseAndSelectWinner} style={{ flex: 1, justifyContent: 'center', padding: '14px' }}>
+            <button className="btn-primary" onClick={handleCloseAndSelectWinner} style={{ flex: 1, justifyContent: 'center', padding: '14px', opacity: indexerConnected ? 1 : 0.5 }} disabled={!indexerConnected}>
               🎯 Post Winning Commitment & Close Entries
             </button>
-            <button className="btn-secondary" onClick={handleCancelGiveaway} style={{ borderColor: '#dc2626', color: '#dc2626', background: '#fef2f2', padding: '14px' }}>
+            <button className="btn-secondary" onClick={handleCancelGiveaway} style={{ borderColor: '#dc2626', color: '#dc2626', background: '#fef2f2', padding: '14px', opacity: indexerConnected ? 1 : 0.5 }} disabled={!indexerConnected}>
               Cancel Giveaway
             </button>
           </div>
         </div>
       </div>
-
     </div>
   );
 };

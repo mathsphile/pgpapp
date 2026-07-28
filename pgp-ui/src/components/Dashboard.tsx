@@ -6,10 +6,11 @@ import { GiveawayItem, ActivityItem, AppTab } from '../types.js';
 interface DashboardProps {
   giveaway: GiveawayItem;
   activities: ActivityItem[];
+  indexerConnected: boolean;
   setActiveTab: (tab: AppTab) => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ giveaway, activities, setActiveTab }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ giveaway, activities, indexerConnected, setActiveTab }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
       
@@ -46,8 +47,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ giveaway, activities, setA
             <span style={{ fontWeight: '600' }}>Active Giveaways</span>
             <span>🔒 ZK Shielded</span>
           </div>
-          <p style={{ fontSize: '2.25rem', fontWeight: '800', color: '#0f172a' }}>1</p>
-          <p style={{ fontSize: '0.78rem', color: '#059669', fontWeight: '600', marginTop: '4px' }}>● 1 Registration Open</p>
+          <p style={{ fontSize: '2.25rem', fontWeight: '800', color: '#0f172a' }}>{indexerConnected ? '1' : '0'}</p>
+          <p style={{ fontSize: '0.78rem', color: '#059669', fontWeight: '600', marginTop: '4px' }}>
+            {indexerConnected ? `● ${giveaway.state.replace(/_/g, ' ')}` : 'Not connected'}
+          </p>
         </div>
 
         <div className="glass-panel" style={{ padding: '24px', background: '#ffffff' }}>
@@ -64,7 +67,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ giveaway, activities, setA
             <span style={{ fontWeight: '600' }}>Prize Pool</span>
             <span>💰 Escrowed</span>
           </div>
-          <p style={{ fontSize: '2.25rem', fontWeight: '800', color: '#047857' }}>1,000 tNIGHT</p>
+          <p style={{ fontSize: '1.35rem', fontWeight: '800', color: '#047857', marginTop: '8px' }}>
+            {indexerConnected ? (giveaway.prizeDetails || 'Not set') : '--'}
+          </p>
           <p style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '4px' }}>Preprod Network</p>
         </div>
 

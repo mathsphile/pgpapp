@@ -1,54 +1,49 @@
-// PGP State Management - Real Wallet Detection & Transaction Fee Balance Deduction
+// PGP State Store - Real Midnight Indexer Connection & Honest Transaction Flow
+// No simulated hashes, no fabricated balances, no fake activity entries.
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import type { Subscription } from 'rxjs';
 import { AppTab, ActivityItem, GiveawayItem, WalletState, TransactionStatus } from '../types.js';
 import { detectMidnightWallets, connectMidnightWallet } from '../utils/midnightWallet.js';
+import {
+  connectContract,
+  disconnectContract,
+  getConnectionState,
+  enterGiveaway,
+  claimPrize,
+  createGiveaway,
+  closeAndSelectWinner,
+  cancelGiveaway,
+} from '../utils/midnightService.js';
 
-const INITIAL_GIVEAWAY: GiveawayItem = {
-  id: 'pgp-giveaway-1',
-  contractAddress: '02007a8f902c31e7b41298c5643a1f9e2b1049e0c8b321a94f876e5d4c3b2a1f',
-  title: 'Midnight Privacy Giveaway - 1,000 tNIGHT',
-  prizeDetails: '1,000 tNIGHT + Limited Edition ZK Badge',
-  organizerPk: '006acc0a4b06bc8ca2a050f3de0188bc41d1ed8c0a8c5d8f3f5e1afc86c7aa41ec',
+const EMPTY_GIVEAWAY: GiveawayItem = {
+  id: '',
+  contractAddress: '',
+  title: 'No contract connected',
+  prizeDetails: 'Enter a deployed PGP contract address to view on-chain state',
+  organizerPk: '',
   state: 'REGISTRATION_OPEN',
-  entryCount: 42,
-  entryAccumulator: '0x7a8f902c31e7b41298c5643a1f9e2b1049e0c8b321a94f876e5d4c3b2a1f0987',
-  winningCommitment: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  entryCount: 0,
+  entryAccumulator: '',
+  winningCommitment: '',
   winnerClaimed: false,
-  isOrganizer: true,
+  isOrganizer: false,
 };
-
-const INITIAL_ACTIVITIES: ActivityItem[] = [
-  {
-    id: 'act-1',
-    timestamp: new Date(Date.now() - 3600000).toLocaleTimeString(),
-    action: 'Giveaway Created',
-    status: 'Confirmed',
-    details: 'Midnight Privacy Giveaway initialized on Preprod Remote',
-    txHash: '0x3aef...91b2',
-  },
-  {
-    id: 'act-2',
-    timestamp: new Date(Date.now() - 1800000).toLocaleTimeString(),
-    action: 'Private Entry Registered',
-    status: 'Confirmed',
-    details: 'Participant entry commitment appended to ZK accumulator tree',
-    txHash: '0x7c12...49e0',
-  },
-];
 
 export function usePGPStore() {
   const [activeTab, setActiveTab] = useState<AppTab>('home');
-  const [contractAddress, setContractAddress] = useState<string>('02007a8f902c31e7b41298c5643a1f9e2b1049e0c8b321a94f876e5d4c3b2a1f');
-  const [giveaway, setGiveaway] = useState<GiveawayItem>(INITIAL_GIVEAWAY);
-  const [activities, setActivities] = useState<ActivityItem[]>(INITIAL_ACTIVITIES);
+  const [contractAddress, setContractAddress] = useState<string>('');
+  const [giveaway, setGiveaway] = useState<GiveawayItem>(EMPTY_GIVEAWAY);
+  const [activities, setActivities] = useState<ActivityItem[]>([]);
+  const [indexerConnected, setIndexerConnected] = useState<boolean>(false);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
+  const stateSubscription = useRef<Subscription | null>(null);
 
-  // Wallet Connection State (Disconnected by default)
   const [wallet, setWallet] = useState<WalletState>({
     isConnected: false,
     address: null,
     network: 'Preprod Remote',
-    balance: '0 tNIGHT',
+    balance: '--',
     walletType: null,
     isLaceInstalled: false,
     isConnecting: false,
@@ -57,13 +52,10 @@ export function usePGPStore() {
 
   const [isWalletModalOpen, setIsWalletModalOpen] = useState<boolean>(false);
 
-  // Check browser extension installation on mount
   useEffect(() => {
     const { isLaceInstalled } = detectMidnightWallets();
-    setWallet((prev) => ({
-      ...prev,
-      isLaceInstalled,
-    }));
+    setWallet((prev) => ({ ...prev, isLaceInstalled }));
+    return () => { stateSubscription.current?.unsubscribe(); };
   }, []);
 
   const [txModal, setTxModal] = useState<{
@@ -73,11 +65,57 @@ export function usePGPStore() {
     message: string;
     txHash?: string;
   }>({
-    isOpen: false,
-    status: 'Idle',
-    action: '',
-    message: '',
+    isOpen: false, status: 'Idle', action: '', message: '',
   });
+
+  const addActivity = (action: string, status: TransactionStatus, details: string, txHash?: string) => {
+    setActivities((prev) => [{
+      id: `act-${Date.now()}`,
+      timestamp: new Date().toLocaleTimeString(),
+      action, status, details, txHash,
+    }, ...prev]);
+  };
+
+  const subscribeContract = (address: string) => {
+    stateSubscription.current?.unsubscribe();
+    const state$ = connectContract(address);
+    stateSubscription.current = state$.subscribe({
+      next: (derived) => {
+        setIndexerConnected(true);
+        setConnectionError(null);
+        setGiveaway({
+          id: address,
+          contractAddress: address,
+          title: derived.title ?? 'Untitled Giveaway',
+          prizeDetails: derived.prizeDetails ?? 'Not set',
+          organizerPk: derived.organizerPk,
+          state: ['REGISTRATION_OPEN', 'DRAW_PENDING', 'COMPLETED', 'CANCELLED'][derived.giveawayState] as any,
+          entryCount: Number(derived.entryCount ?? 0n),
+          entryAccumulator: derived.entryAccumulator,
+          winningCommitment: derived.winningCommitment,
+          winnerClaimed: derived.winnerClaimed,
+          isOrganizer: derived.isOrganizer,
+        });
+        addActivity('Contract Connected', 'Confirmed', `Bound to deployed PGP contract ${address.substring(0, 12)}...`);
+      },
+      error: (err) => {
+        setConnectionError(err?.message ?? 'Failed to observe contract');
+        setIndexerConnected(false);
+      },
+    });
+  };
+
+  const handleSetContractAddress = (address: string) => {
+    setContractAddress(address);
+    if (address) {
+      subscribeContract(address);
+    } else {
+      stateSubscription.current?.unsubscribe();
+      disconnectContract();
+      setIndexerConnected(false);
+      setGiveaway(EMPTY_GIVEAWAY);
+    }
+  };
 
   const connectWallet = async (type: 'lace' | '1am' | 'seed' | 'custom', customAddress?: string) => {
     setWallet((prev) => ({ ...prev, isConnecting: true, error: null }));
@@ -87,14 +125,14 @@ export function usePGPStore() {
         isConnected: true,
         address: customAddress,
         network: 'Midnight Preprod Remote',
-        balance: '1,000 tNIGHT',
+        balance: '--',
         walletType: 'custom',
         isLaceInstalled: wallet.isLaceInstalled,
         isConnecting: false,
         error: null,
       });
       setIsWalletModalOpen(false);
-      addActivity('Wallet Connected', 'Confirmed', `Connected via Custom Address (${customAddress.substring(0, 12)}...)`);
+      addActivity('Wallet Connected', 'Confirmed', `View-only connection via custom address (${customAddress.substring(0, 12)}...)`);
       return;
     }
 
@@ -114,8 +152,7 @@ export function usePGPStore() {
       addActivity('Wallet Connected', 'Confirmed', `Connected via ${type.toUpperCase()} (${res.address.substring(0, 12)}...)`);
     } catch (err: any) {
       setWallet((prev) => ({
-        ...prev,
-        isConnecting: false,
+        ...prev, isConnecting: false,
         error: err.message || `Failed to connect ${type.toUpperCase()} Wallet.`,
       }));
     }
@@ -123,106 +160,84 @@ export function usePGPStore() {
 
   const disconnectWallet = () => {
     setWallet((prev) => ({
-      ...prev,
-      isConnected: false,
-      address: null,
-      balance: '0 tNIGHT',
-      walletType: null,
-      error: null,
+      ...prev, isConnected: false, address: null, balance: '--', walletType: null, error: null,
     }));
     addActivity('Wallet Disconnected', 'Confirmed', 'Disconnected Midnight Wallet');
   };
 
   const toggleWalletConnection = () => {
-    if (wallet.isConnected) {
-      disconnectWallet();
-    } else {
-      setIsWalletModalOpen(true);
-    }
+    if (wallet.isConnected) disconnectWallet();
+    else setIsWalletModalOpen(true);
   };
 
-  const addActivity = (action: string, status: TransactionStatus, details: string, txHash?: string) => {
-    const newItem: ActivityItem = {
-      id: `act-${Date.now()}`,
-      timestamp: new Date().toLocaleTimeString(),
-      action,
-      status,
-      details,
-      txHash,
-    };
-    setActivities((prev) => [newItem, ...prev]);
-  };
-
-  const triggerTransactionFlow = async (
+  // Honest transaction flow: calls real circuit functions that error if prerequisites are unmet.
+  const submitCircuitCall = async (
     actionName: string,
-    successCallback: () => void,
     detailsText: string,
-    feeInTNIGHT: number = 10
+    onSuccess: () => void,
+    circuitCall: () => Promise<any>,
   ) => {
     if (!wallet.isConnected) {
       setIsWalletModalOpen(true);
       return;
     }
+    if (!contractAddress) {
+      setTxModal({ isOpen: true, status: 'Failed', action: actionName, message: 'No contract connected. Enter a deployed PGP contract address on the Settings tab first.' });
+      return;
+    }
 
-    setTxModal({
-      isOpen: true,
-      status: 'Pending',
-      action: actionName,
-      message: `Generating ZK proof & estimating network fee (${feeInTNIGHT} tNIGHT)...`,
-    });
+    setTxModal({ isOpen: true, status: 'Pending', action: actionName, message: 'Generating ZK proof via proof server...' });
 
-    await new Promise((r) => setTimeout(r, 1200));
-
-    setTxModal((prev) => ({
-      ...prev,
-      status: 'Processing',
-      message: `Deducting ${feeInTNIGHT} tNIGHT transaction fee & submitting to Midnight Preprod node...`,
-    }));
-
-    await new Promise((r) => setTimeout(r, 1800));
-
-    // Calculate real balance deduction
-    const currentBalanceNum = parseInt(wallet.balance.replace(/[^0-9]/g, '')) || 1000;
-    const newBalanceNum = Math.max(0, currentBalanceNum - feeInTNIGHT);
-    const newBalanceStr = `${newBalanceNum.toLocaleString()} tNIGHT`;
-
-    setWallet((prev) => ({
-      ...prev,
-      balance: newBalanceStr,
-    }));
-
-    const fakeHash = `0x${Math.random().toString(16).substring(2, 10)}...${Math.random().toString(16).substring(2, 6)}`;
-    
-    setTxModal({
-      isOpen: true,
-      status: 'Confirmed',
-      action: actionName,
-      message: `Transaction confirmed on-chain! Deducted ${feeInTNIGHT} tNIGHT fee. Updated Balance: ${newBalanceStr}`,
-      txHash: fakeHash,
-    });
-
-    successCallback();
-    addActivity(actionName, 'Confirmed', `${detailsText} (-${feeInTNIGHT} tNIGHT)`, fakeHash);
+    try {
+      const result = await circuitCall();
+      setTxModal({
+        isOpen: true, status: 'Confirmed', action: actionName,
+        message: 'Transaction confirmed on Midnight Preprod.',
+        txHash: result?.txHash,
+      });
+      onSuccess();
+      addActivity(actionName, 'Confirmed', detailsText, result?.txHash);
+    } catch (err: any) {
+      setTxModal({
+        isOpen: true, status: 'Failed', action: actionName,
+        message: err?.message || 'Circuit call failed.',
+      });
+      addActivity(actionName, 'Failed', err?.message || detailsText);
+    }
   };
 
+  const enterGiveawayAction = (commitmentHex: string, onSuccess: () => void) =>
+    submitCircuitCall('Private Entry', `Submitted ZK commitment ${commitmentHex.substring(0, 12)}...`, onSuccess,
+      () => enterGiveaway(contractAddress, commitmentHex));
+
+  const claimPrizeAction = (ticketSecretHex: string, onSuccess: () => void) =>
+    submitCircuitCall('Prize Claim', 'ZK proof verifies ticket secret matches winning commitment', onSuccess,
+      () => claimPrize(contractAddress, ticketSecretHex));
+
+  const createGiveawayAction = (title: string, prizeDetails: string, onSuccess: () => void) =>
+    submitCircuitCall('Create Giveaway', `Created giveaway "${title}"`, onSuccess,
+      () => createGiveaway(contractAddress, title, prizeDetails));
+
+  const closeAndSelectWinnerAction = (winningCommitment: string, onSuccess: () => void) =>
+    submitCircuitCall('Draw Winner', `Posted winning commitment ${winningCommitment.substring(0, 12)}...`, onSuccess,
+      () => closeAndSelectWinner(contractAddress, winningCommitment));
+
+  const cancelGiveawayAction = (onSuccess: () => void) =>
+    submitCircuitCall('Cancel Giveaway', 'Organizer cancelled the active giveaway', onSuccess,
+      () => cancelGiveaway(contractAddress));
+
   return {
-    activeTab,
-    setActiveTab,
-    contractAddress,
-    setContractAddress,
-    giveaway,
-    setGiveaway,
-    activities,
-    wallet,
-    setWallet,
-    isWalletModalOpen,
-    setIsWalletModalOpen,
-    connectWallet,
-    disconnectWallet,
-    toggleWalletConnection,
-    txModal,
-    setTxModal,
-    triggerTransactionFlow,
-    addActivity,
+    activeTab, setActiveTab,
+    contractAddress, setContractAddress: handleSetContractAddress,
+    giveaway, setGiveaway,
+    activities, addActivity,
+    indexerConnected, connectionError,
+    wallet, setWallet,
+    isWalletModalOpen, setIsWalletModalOpen,
+    connectWallet, disconnectWallet, toggleWalletConnection,
+    txModal, setTxModal,
+    enterGiveawayAction, claimPrizeAction, createGiveawayAction,
+    closeAndSelectWinnerAction, cancelGiveawayAction,
+    subscribeContract,
   };
 }
