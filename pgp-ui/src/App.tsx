@@ -17,17 +17,27 @@ import './index.css';
 
 export const App: React.FC = () => {
   const {
-    activeTab, setActiveTab,
-    contractAddress, setContractAddress,
-    giveaway, setGiveaway,
+    activeTab,
+    setActiveTab,
+    contractAddress,
+    setContractAddress,
+    giveaway,
+    setGiveaway,
     activities,
     indexerConnected,
     wallet,
-    isWalletModalOpen, setIsWalletModalOpen,
-    connectWallet, disconnectWallet, toggleWalletConnection,
-    txModal, setTxModal,
-    enterGiveawayAction, claimPrizeAction, createGiveawayAction,
-    closeAndSelectWinnerAction, cancelGiveawayAction,
+    isWalletModalOpen,
+    setIsWalletModalOpen,
+    connectWallet,
+    disconnectWallet,
+    toggleWalletConnection,
+    txModal,
+    setTxModal,
+    enterGiveawayAction,
+    claimPrizeAction,
+    createGiveawayAction,
+    closeAndSelectWinnerAction,
+    cancelGiveawayAction,
   } = usePGPStore();
 
   return (
@@ -51,7 +61,12 @@ export const App: React.FC = () => {
         )}
 
         {activeTab === 'dashboard' && (
-          <Dashboard giveaway={giveaway} activities={activities} indexerConnected={indexerConnected} setActiveTab={setActiveTab} />
+          <Dashboard
+            giveaway={giveaway}
+            activities={activities}
+            indexerConnected={indexerConnected}
+            setActiveTab={setActiveTab}
+          />
         )}
 
         {activeTab === 'giveaways' && (
@@ -107,9 +122,7 @@ export const App: React.FC = () => {
           </WalletGate>
         )}
 
-        {activeTab === 'analytics' && (
-          <AnalyticsView giveaway={giveaway} indexerConnected={indexerConnected} />
-        )}
+        {activeTab === 'analytics' && <AnalyticsView giveaway={giveaway} indexerConnected={indexerConnected} />}
 
         {activeTab === 'settings' && (
           <SettingsView contractAddress={contractAddress} setContractAddress={setContractAddress} wallet={wallet} />
@@ -133,7 +146,16 @@ export const App: React.FC = () => {
         onClose={() => setTxModal((prev) => ({ ...prev, isOpen: false }))}
       />
 
-      <footer style={{ borderTop: '1px solid var(--border-glass)', padding: '24px', textAlign: 'center', color: '#64748b', fontSize: '0.85rem', background: '#ffffff' }}>
+      <footer
+        style={{
+          borderTop: '1px solid var(--border-glass)',
+          padding: '24px',
+          textAlign: 'center',
+          color: '#64748b',
+          fontSize: '0.85rem',
+          background: '#ffffff',
+        }}
+      >
         Midnight Network Private Giveaway Platform (PGP) • Zero-Knowledge Smart Contract System
       </footer>
     </div>

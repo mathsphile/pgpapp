@@ -96,12 +96,25 @@ export const WalletModal: React.FC<WalletModalProps> = ({
               </div>
               <div>
                 <h3 style={{ fontSize: '1.4rem', color: '#0f172a' }}>Connect Midnight Wallet</h3>
-                <p style={{ fontSize: '0.825rem', color: '#64748b' }}>Connect your Midnight Preprod Remote provider or address</p>
+                <p style={{ fontSize: '0.825rem', color: '#64748b' }}>
+                  Connect your Midnight Preprod Remote provider or address
+                </p>
               </div>
             </div>
 
             {wallet.error && (
-              <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', color: '#991b1b', padding: '12px 16px', borderRadius: '10px', fontSize: '0.85rem', margin: '16px 0 8px 0', lineHeight: '1.4' }}>
+              <div
+                style={{
+                  background: '#fef2f2',
+                  border: '1px solid #fca5a5',
+                  color: '#991b1b',
+                  padding: '12px 16px',
+                  borderRadius: '10px',
+                  fontSize: '0.85rem',
+                  margin: '16px 0 8px 0',
+                  lineHeight: '1.4',
+                }}
+              >
                 ⚠️ {wallet.error}
               </div>
             )}
@@ -125,7 +138,6 @@ export const WalletModal: React.FC<WalletModalProps> = ({
 
             {activeMode === 'select' ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                
                 {/* Option 1: Lace Wallet Extension */}
                 <div
                   onClick={() => connectWallet('lace')}
@@ -151,7 +163,10 @@ export const WalletModal: React.FC<WalletModalProps> = ({
                       </p>
                     </div>
                   </div>
-                  <span className={`badge-status ${wallet.isLaceInstalled ? 'badge-open' : 'badge-pending'}`} style={{ fontSize: '0.7rem' }}>
+                  <span
+                    className={`badge-status ${wallet.isLaceInstalled ? 'badge-open' : 'badge-pending'}`}
+                    style={{ fontSize: '0.7rem' }}
+                  >
                     {wallet.isLaceInstalled ? 'Detected' : 'Install Lace'}
                   </span>
                 </div>
@@ -176,10 +191,14 @@ export const WalletModal: React.FC<WalletModalProps> = ({
                     <span style={{ fontSize: '1.8rem' }}>⚡</span>
                     <div>
                       <h4 style={{ fontSize: '1.05rem', color: '#0f172a' }}>1AM Wallet Connector</h4>
-                      <p style={{ fontSize: '0.78rem', color: '#64748b' }}>Connect to Midnight Preprod remote wallet node</p>
+                      <p style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                        Connect to Midnight Preprod remote wallet node
+                      </p>
                     </div>
                   </div>
-                  <span className="badge-status badge-open" style={{ fontSize: '0.7rem' }}>1AM Connector</span>
+                  <span className="badge-status badge-open" style={{ fontSize: '0.7rem' }}>
+                    1AM Connector
+                  </span>
                 </div>
 
                 {/* Option 3: Seed / Private State Wallet */}
@@ -205,9 +224,10 @@ export const WalletModal: React.FC<WalletModalProps> = ({
                       <p style={{ fontSize: '0.78rem', color: '#64748b' }}>Local private state witness key store</p>
                     </div>
                   </div>
-                  <span className="badge-status badge-open" style={{ fontSize: '0.7rem' }}>Headless</span>
+                  <span className="badge-status badge-open" style={{ fontSize: '0.7rem' }}>
+                    Headless
+                  </span>
                 </div>
-
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -215,7 +235,15 @@ export const WalletModal: React.FC<WalletModalProps> = ({
                   Enter your real Midnight Network Bech32 wallet address (`mn_addr_preprod...` or `0x...`):
                 </p>
                 <div>
-                  <span style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: '700', display: 'block', marginBottom: '4px' }}>
+                  <span
+                    style={{
+                      fontSize: '0.78rem',
+                      color: '#64748b',
+                      fontWeight: '700',
+                      display: 'block',
+                      marginBottom: '4px',
+                    }}
+                  >
                     MIDNIGHT WALLET ADDRESS
                   </span>
                   <input
@@ -262,21 +290,44 @@ export const WalletModal: React.FC<WalletModalProps> = ({
               </p>
             </div>
 
-            <div style={{ background: '#f8fafc', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '14px', padding: '20px', marginBottom: '24px', fontSize: '0.875rem' }}>
+            <div
+              style={{
+                background: '#f8fafc',
+                border: '1px solid rgba(16, 185, 129, 0.2)',
+                borderRadius: '14px',
+                padding: '20px',
+                marginBottom: '24px',
+                fontSize: '0.875rem',
+              }}
+            >
               <div style={{ marginBottom: '12px' }}>
-                <span style={{ color: '#64748b', fontSize: '0.78rem', fontWeight: '600', display: 'block' }}>ACCOUNT ADDRESS</span>
-                <p style={{ fontFamily: 'monospace', color: '#0f172a', fontWeight: '700', wordBreak: 'break-all', marginTop: '2px' }}>
+                <span style={{ color: '#64748b', fontSize: '0.78rem', fontWeight: '600', display: 'block' }}>
+                  ACCOUNT ADDRESS
+                </span>
+                <p
+                  style={{
+                    fontFamily: 'monospace',
+                    color: '#0f172a',
+                    fontWeight: '700',
+                    wordBreak: 'break-all',
+                    marginTop: '2px',
+                  }}
+                >
                   {wallet.address}
                 </p>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <span style={{ color: '#64748b', fontSize: '0.78rem', fontWeight: '600', display: 'block' }}>NETWORK</span>
+                  <span style={{ color: '#64748b', fontSize: '0.78rem', fontWeight: '600', display: 'block' }}>
+                    NETWORK
+                  </span>
                   <span style={{ color: '#047857', fontWeight: '700' }}>{wallet.network}</span>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <span style={{ color: '#64748b', fontSize: '0.78rem', fontWeight: '600', display: 'block' }}>BALANCE</span>
+                  <span style={{ color: '#64748b', fontSize: '0.78rem', fontWeight: '600', display: 'block' }}>
+                    BALANCE
+                  </span>
                   <span style={{ color: '#059669', fontWeight: '800' }}>{wallet.balance}</span>
                 </div>
               </div>
@@ -284,7 +335,14 @@ export const WalletModal: React.FC<WalletModalProps> = ({
 
             <button
               className="btn-secondary"
-              style={{ width: '100%', justifyContent: 'center', borderColor: '#dc2626', color: '#dc2626', background: '#fef2f2', padding: '12px' }}
+              style={{
+                width: '100%',
+                justifyContent: 'center',
+                borderColor: '#dc2626',
+                color: '#dc2626',
+                background: '#fef2f2',
+                padding: '12px',
+              }}
               onClick={disconnectWallet}
             >
               Disconnect Wallet

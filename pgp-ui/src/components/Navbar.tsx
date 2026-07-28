@@ -30,27 +30,44 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="glass-header">
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
-        
+      <div
+        style={{
+          maxWidth: '1280px',
+          margin: '0 auto',
+          padding: '16px 24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '16px',
+        }}
+      >
         {/* Brand / Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setActiveTab('home')}>
-          <div style={{
-            width: '42px',
-            height: '42px',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, #10b981, #059669)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: '800',
-            fontSize: '1.25rem',
-            boxShadow: '0 4px 16px rgba(16, 185, 129, 0.35)',
-            color: '#fff'
-          }}>
+        <div
+          style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
+          onClick={() => setActiveTab('home')}
+        >
+          <div
+            style={{
+              width: '42px',
+              height: '42px',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #10b981, #059669)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: '800',
+              fontSize: '1.25rem',
+              boxShadow: '0 4px 16px rgba(16, 185, 129, 0.35)',
+              color: '#fff',
+            }}
+          >
             🛡️
           </div>
           <div>
-            <h2 className="gradient-text" style={{ fontSize: '1.3rem', lineHeight: '1.2', fontWeight: '800' }}>Midnight PGP</h2>
+            <h2 className="gradient-text" style={{ fontSize: '1.3rem', lineHeight: '1.2', fontWeight: '800' }}>
+              Midnight PGP
+            </h2>
             <p style={{ fontSize: '0.75rem', color: '#059669', fontWeight: '600' }}>Private Giveaway Platform</p>
           </div>
         </div>
@@ -88,9 +105,18 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Wallet Connection Toggle Switch & Badge */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          
           {/* Toggle Switch */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f8fafc', padding: '4px 8px', borderRadius: '20px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              background: '#f8fafc',
+              padding: '4px 8px',
+              borderRadius: '20px',
+              border: '1px solid rgba(16, 185, 129, 0.2)',
+            }}
+          >
             <span style={{ fontSize: '0.75rem', fontWeight: '700', color: wallet.isConnected ? '#059669' : '#64748b' }}>
               {wallet.isConnected ? 'Connected' : 'Disconnected'}
             </span>
@@ -140,7 +166,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                 cursor: 'pointer',
               }}
             >
-              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
+              <div
+                style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  background: '#10b981',
+                  boxShadow: '0 0 8px #10b981',
+                }}
+              />
               <div style={{ textAlign: 'left' }}>
                 <p style={{ fontSize: '0.725rem', color: '#64748b', fontWeight: '600' }}>
                   {wallet.address?.substring(0, 10)}... ({wallet.walletType?.toUpperCase()})
@@ -157,9 +191,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="pulse-glow">⚡</span> Connect Wallet
             </button>
           )}
-
         </div>
-
       </div>
     </header>
   );

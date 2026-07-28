@@ -11,13 +11,7 @@ interface WalletGateProps {
   children: React.ReactNode;
 }
 
-export const WalletGate: React.FC<WalletGateProps> = ({
-  wallet,
-  onOpenWalletModal,
-  title,
-  description,
-  children,
-}) => {
+export const WalletGate: React.FC<WalletGateProps> = ({ wallet, onOpenWalletModal, title, description, children }) => {
   if (wallet.isConnected) {
     return <>{children}</>;
   }
@@ -53,7 +47,15 @@ export const WalletGate: React.FC<WalletGateProps> = ({
         </div>
 
         <h2 style={{ fontSize: '2rem', marginBottom: '10px', color: '#0f172a' }}>{title}</h2>
-        <p style={{ color: '#64748b', fontSize: '1.05rem', maxWidth: '580px', margin: '0 auto 28px auto', lineHeight: '1.6' }}>
+        <p
+          style={{
+            color: '#64748b',
+            fontSize: '1.05rem',
+            maxWidth: '580px',
+            margin: '0 auto 28px auto',
+            lineHeight: '1.6',
+          }}
+        >
           {description}
         </p>
 

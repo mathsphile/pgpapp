@@ -55,7 +55,9 @@ export function usePGPStore() {
   useEffect(() => {
     const { isLaceInstalled } = detectMidnightWallets();
     setWallet((prev) => ({ ...prev, isLaceInstalled }));
-    return () => { stateSubscription.current?.unsubscribe(); };
+    return () => {
+      stateSubscription.current?.unsubscribe();
+    };
   }, []);
 
   const [txModal, setTxModal] = useState<{
@@ -65,15 +67,24 @@ export function usePGPStore() {
     message: string;
     txHash?: string;
   }>({
-    isOpen: false, status: 'Idle', action: '', message: '',
+    isOpen: false,
+    status: 'Idle',
+    action: '',
+    message: '',
   });
 
   const addActivity = (action: string, status: TransactionStatus, details: string, txHash?: string) => {
-    setActivities((prev) => [{
-      id: `act-${Date.now()}`,
-      timestamp: new Date().toLocaleTimeString(),
-      action, status, details, txHash,
-    }, ...prev]);
+    setActivities((prev) => [
+      {
+        id: `act-${Date.now()}`,
+        timestamp: new Date().toLocaleTimeString(),
+        action,
+        status,
+        details,
+        txHash,
+      },
+      ...prev,
+    ]);
   };
 
   const subscribeContract = (address: string) => {
@@ -132,7 +143,11 @@ export function usePGPStore() {
         error: null,
       });
       setIsWalletModalOpen(false);
-      addActivity('Wallet Connected', 'Confirmed', `View-only connection via custom address (${customAddress.substring(0, 12)}...)`);
+      addActivity(
+        'Wallet Connected',
+        'Confirmed',
+        `View-only connection via custom address (${customAddress.substring(0, 12)}...)`,
+      );
       return;
     }
 
@@ -149,10 +164,15 @@ export function usePGPStore() {
         error: null,
       });
       setIsWalletModalOpen(false);
-      addActivity('Wallet Connected', 'Confirmed', `Connected via ${type.toUpperCase()} (${res.address.substring(0, 12)}...)`);
+      addActivity(
+        'Wallet Connected',
+        'Confirmed',
+        `Connected via ${type.toUpperCase()} (${res.address.substring(0, 12)}...)`,
+      );
     } catch (err: any) {
       setWallet((prev) => ({
-        ...prev, isConnecting: false,
+        ...prev,
+        isConnecting: false,
         error: err.message || `Failed to connect ${type.toUpperCase()} Wallet.`,
       }));
     }
@@ -160,7 +180,12 @@ export function usePGPStore() {
 
   const disconnectWallet = () => {
     setWallet((prev) => ({
-      ...prev, isConnected: false, address: null, balance: '--', walletType: null, error: null,
+      ...prev,
+      isConnected: false,
+      address: null,
+      balance: '--',
+      walletType: null,
+      error: null,
     }));
     addActivity('Wallet Disconnected', 'Confirmed', 'Disconnected Midnight Wallet');
   };
@@ -182,16 +207,28 @@ export function usePGPStore() {
       return;
     }
     if (!contractAddress) {
-      setTxModal({ isOpen: true, status: 'Failed', action: actionName, message: 'No contract connected. Enter a deployed PGP contract address on the Settings tab first.' });
+      setTxModal({
+        isOpen: true,
+        status: 'Failed',
+        action: actionName,
+        message: 'No contract connected. Enter a deployed PGP contract address on the Settings tab first.',
+      });
       return;
     }
 
-    setTxModal({ isOpen: true, status: 'Pending', action: actionName, message: 'Generating ZK proof via proof server...' });
+    setTxModal({
+      isOpen: true,
+      status: 'Pending',
+      action: actionName,
+      message: 'Generating ZK proof via proof server...',
+    });
 
     try {
       const result = await circuitCall();
       setTxModal({
-        isOpen: true, status: 'Confirmed', action: actionName,
+        isOpen: true,
+        status: 'Confirmed',
+        action: actionName,
         message: 'Transaction confirmed on Midnight Preprod.',
         txHash: result?.txHash,
       });
@@ -199,7 +236,9 @@ export function usePGPStore() {
       addActivity(actionName, 'Confirmed', detailsText, result?.txHash);
     } catch (err: any) {
       setTxModal({
-        isOpen: true, status: 'Failed', action: actionName,
+        isOpen: true,
+        status: 'Failed',
+        action: actionName,
         message: err?.message || 'Circuit call failed.',
       });
       addActivity(actionName, 'Failed', err?.message || detailsText);
@@ -207,37 +246,58 @@ export function usePGPStore() {
   };
 
   const enterGiveawayAction = (commitmentHex: string, onSuccess: () => void) =>
-    submitCircuitCall('Private Entry', `Submitted ZK commitment ${commitmentHex.substring(0, 12)}...`, onSuccess,
-      () => enterGiveaway(contractAddress, commitmentHex));
+    submitCircuitCall('Private Entry', `Submitted ZK commitment ${commitmentHex.substring(0, 12)}...`, onSuccess, () =>
+      enterGiveaway(contractAddress, commitmentHex),
+    );
 
   const claimPrizeAction = (ticketSecretHex: string, onSuccess: () => void) =>
-    submitCircuitCall('Prize Claim', 'ZK proof verifies ticket secret matches winning commitment', onSuccess,
-      () => claimPrize(contractAddress, ticketSecretHex));
+    submitCircuitCall('Prize Claim', 'ZK proof verifies ticket secret matches winning commitment', onSuccess, () =>
+      claimPrize(contractAddress, ticketSecretHex),
+    );
 
   const createGiveawayAction = (title: string, prizeDetails: string, onSuccess: () => void) =>
-    submitCircuitCall('Create Giveaway', `Created giveaway "${title}"`, onSuccess,
-      () => createGiveaway(contractAddress, title, prizeDetails));
+    submitCircuitCall('Create Giveaway', `Created giveaway "${title}"`, onSuccess, () =>
+      createGiveaway(contractAddress, title, prizeDetails),
+    );
 
   const closeAndSelectWinnerAction = (winningCommitment: string, onSuccess: () => void) =>
-    submitCircuitCall('Draw Winner', `Posted winning commitment ${winningCommitment.substring(0, 12)}...`, onSuccess,
-      () => closeAndSelectWinner(contractAddress, winningCommitment));
+    submitCircuitCall(
+      'Draw Winner',
+      `Posted winning commitment ${winningCommitment.substring(0, 12)}...`,
+      onSuccess,
+      () => closeAndSelectWinner(contractAddress, winningCommitment),
+    );
 
   const cancelGiveawayAction = (onSuccess: () => void) =>
-    submitCircuitCall('Cancel Giveaway', 'Organizer cancelled the active giveaway', onSuccess,
-      () => cancelGiveaway(contractAddress));
+    submitCircuitCall('Cancel Giveaway', 'Organizer cancelled the active giveaway', onSuccess, () =>
+      cancelGiveaway(contractAddress),
+    );
 
   return {
-    activeTab, setActiveTab,
-    contractAddress, setContractAddress: handleSetContractAddress,
-    giveaway, setGiveaway,
-    activities, addActivity,
-    indexerConnected, connectionError,
-    wallet, setWallet,
-    isWalletModalOpen, setIsWalletModalOpen,
-    connectWallet, disconnectWallet, toggleWalletConnection,
-    txModal, setTxModal,
-    enterGiveawayAction, claimPrizeAction, createGiveawayAction,
-    closeAndSelectWinnerAction, cancelGiveawayAction,
+    activeTab,
+    setActiveTab,
+    contractAddress,
+    setContractAddress: handleSetContractAddress,
+    giveaway,
+    setGiveaway,
+    activities,
+    addActivity,
+    indexerConnected,
+    connectionError,
+    wallet,
+    setWallet,
+    isWalletModalOpen,
+    setIsWalletModalOpen,
+    connectWallet,
+    disconnectWallet,
+    toggleWalletConnection,
+    txModal,
+    setTxModal,
+    enterGiveawayAction,
+    claimPrizeAction,
+    createGiveawayAction,
+    closeAndSelectWinnerAction,
+    cancelGiveawayAction,
     subscribeContract,
   };
 }

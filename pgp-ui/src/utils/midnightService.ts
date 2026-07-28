@@ -2,9 +2,7 @@
 // Reads on-chain state via the Preprod indexer; write operations require the CLI.
 
 import { type Observable, EMPTY, BehaviorSubject, tap, map, catchError } from 'rxjs';
-import {
-  type State, ledger, pureCircuits,
-} from '@midnight-ntwrk/pgp-contract';
+import { type State, ledger, pureCircuits } from '@midnight-ntwrk/pgp-contract';
 import { indexerPublicDataProvider } from '@midnight-ntwrk/midnight-js-indexer-public-data-provider';
 import { toHex } from '@midnight-ntwrk/midnight-js-utils';
 import type { ContractAddress } from '@midnight-ntwrk/midnight-js-protocol/compact-runtime';
@@ -75,7 +73,7 @@ export function connectContract(contractAddress: string): Observable<PGPDerivedS
     return EMPTY;
   }
 
-  const address = `0x${cleanAddress}` as ContractAddress;
+  const address = `0x${cleanAddress}`;
   connection$.next({ indexerConnected: true, contractFound: false, contractAddress: cleanAddress });
 
   return createState$(address).pipe(
@@ -84,7 +82,9 @@ export function connectContract(contractAddress: string): Observable<PGPDerivedS
     }),
     catchError((err) => {
       connection$.next({
-        indexerConnected: true, contractFound: false, contractAddress: cleanAddress,
+        indexerConnected: true,
+        contractFound: false,
+        contractAddress: cleanAddress,
         error: `Failed to observe contract: ${err?.message ?? 'unknown error'}`,
       });
       return EMPTY;
@@ -99,34 +99,34 @@ export function disconnectContract(): void {
 export async function enterGiveaway(_contractAddress: string, _commitmentHex: string): Promise<void> {
   throw new Error(
     'Circuit calls from the browser require the Midnight Lace wallet extension and a proof server at localhost:6300. ' +
-    'Use the CLI to submit transactions: `cd pgp-cli && npm run preprod-remote`.'
+      'Use the CLI to submit transactions: `cd pgp-cli && npm run preprod-remote`.',
   );
 }
 
 export async function claimPrize(_contractAddress: string, _ticketSecretHex: string): Promise<void> {
   throw new Error(
     'Circuit calls from the browser require the Midnight Lace wallet extension and a proof server at localhost:6300. ' +
-    'Use the CLI to submit transactions: `cd pgp-cli && npm run preprod-remote`.'
+      'Use the CLI to submit transactions: `cd pgp-cli && npm run preprod-remote`.',
   );
 }
 
 export async function createGiveaway(_contractAddress: string, _title: string, _prizeDetails: string): Promise<void> {
   throw new Error(
     'Circuit calls from the browser require the Midnight Lace wallet extension and a proof server at localhost:6300. ' +
-    'Use the CLI to submit transactions: `cd pgp-cli && npm run preprod-remote`.'
+      'Use the CLI to submit transactions: `cd pgp-cli && npm run preprod-remote`.',
   );
 }
 
 export async function closeAndSelectWinner(_contractAddress: string, _winningCommitment: string): Promise<void> {
   throw new Error(
     'Circuit calls from the browser require the Midnight Lace wallet extension and a proof server at localhost:6300. ' +
-    'Use the CLI to submit transactions: `cd pgp-cli && npm run preprod-remote`.'
+      'Use the CLI to submit transactions: `cd pgp-cli && npm run preprod-remote`.',
   );
 }
 
 export async function cancelGiveaway(_contractAddress: string): Promise<void> {
   throw new Error(
     'Circuit calls from the browser require the Midnight Lace wallet extension and a proof server at localhost:6300. ' +
-    'Use the CLI to submit transactions: `cd pgp-cli && npm run preprod-remote`.'
+      'Use the CLI to submit transactions: `cd pgp-cli && npm run preprod-remote`.',
   );
 }
