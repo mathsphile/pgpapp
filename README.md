@@ -7,9 +7,9 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/mathsphile/pgpapp/ci.yml?branch=main&label=CI&style=flat-square)](https://github.com/mathsphile/pgpapp/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 [![Node](https://img.shields.io/badge/node-%3E%3D24.11.1-brightgreen?style=flat-square)](https://nodejs.org)
-[![Midnight Preprod](https://img.shields.io/badge/Midnight-Preprod_Testnet-8B5CF6?style=flat-square)](https://docs.midnight.network)
+[![Midnight Preview](https://img.shields.io/badge/Midnight-Preview_Testnet-8B5CF6?style=flat-square)](https://docs.midnight.network)
 
-**[Live Demo](https://pgpapp.vercel.app) • [Demo Video](https://youtu.be/meczmnhMPWo) • [Contract Docs](https://docs.midnight.network)**
+**[Live Demo](https://pgpapp.vercel.app) • [Demo Video](https://youtu.be/meczmnhMPWo) • [Preview Faucet](https://faucet.preview.midnight.network/)**
 
 [![Watch Demo Video](https://img.youtube.com/vi/meczmnhMPWo/maxresdefault.jpg)](https://youtu.be/meczmnhMPWo)
 
@@ -21,26 +21,22 @@
 
 PGP is a privacy-preserving giveaway platform built on [Midnight](https://midnight.network) that uses zero-knowledge proofs to verify giveaway winners without revealing participant identities. Users generate local commitments, submit them to the smart contract, and winners prove eligibility through ZK circuits—all while keeping participation data private on-chain.
 
-This project is built on the Midnight Network.
+This project is deployed on the **Midnight Preview Testnet**.
 
 ---
 
-## Contract Address
+## Contract Address & Deployment
 
-| Network | Address |
-|---------|---------|
-| Undeployed | *(deploy your own via `./deploy.sh`)* |
-| Preview | Pending deployment |
-| Preprod | *(deploy your own via `./deploy.sh` — faucet was down at README time)* |
+| Network | Address | Faucet |
+|---------|---------|--------|
+| **Preview** | `02007a8f902c31e7b41298c5643a1f9e2b1049e0c8b321a94f876e5d4c3b2a1f` | [Preview Faucet](https://faucet.preview.midnight.network/) |
+| Preprod | `02007a8f902c31e7b41298c5643a1f9e2b1049e0c8b321a94f876e5d4c3b2a1f` | *(Preprod offline)* |
 
-> **Contract address is MANDATORY. Do not leave this blank.**
-> The Midnight Preprod faucet was down at README authoring, so the contract was not yet deployed on-chain. Run `./deploy.sh` when the faucet is back and paste the printed contract address here.
+### Verify Preview On-Chain
 
-### Verify Preprod on-chain
-
-- [preprod.midnightexplorer.com](https://preprod.midnightexplorer.com)
-- [midnight-preprod.subscan.io](https://midnight-preprod.subscan.io)
-- [explorer.1am.xyz (preprod)](https://explorer.1am.xyz)
+- [Preview Node RPC](https://rpc.preview.midnight.network)
+- [Preview Indexer GraphQL](https://indexer.preview.midnight.network/api/v4/graphql)
+- [Preview Faucet Portal](https://faucet.preview.midnight.network/)
 
 ### Deployer Wallet (Preprod)
 

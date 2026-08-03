@@ -42,7 +42,7 @@ export function usePGPStore() {
   const [wallet, setWallet] = useState<WalletState>({
     isConnected: false,
     address: null,
-    network: 'Preprod Remote',
+    network: 'Preview Remote',
     balance: '--',
     walletType: null,
     isLaceInstalled: false,
