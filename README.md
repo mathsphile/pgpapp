@@ -27,10 +27,10 @@ This project is deployed on the **Midnight Preview Testnet**.
 
 ## Contract Address & Deployment
 
-| Network | Address | Faucet |
-|---------|---------|--------|
-| **Preview** | `02007a8f902c31e7b41298c5643a1f9e2b1049e0c8b321a94f876e5d4c3b2a1f` | [Preview Faucet](https://faucet.preview.midnight.network/) |
-| Preprod | `02007a8f902c31e7b41298c5643a1f9e2b1049e0c8b321a94f876e5d4c3b2a1f` | *(Preprod offline)* |
+| Network | Address | Faucet | Status |
+|---------|---------|--------|--------|
+| **Preview** | `ac4981616db8a8522716b31760c97543a75520f7a9f28a1e3078166b7080ce2d` | [Preview Faucet](https://faucet.preview.midnight.network/) | **Active (Deployed)** |
+| Preprod | `02007a8f902c31e7b41298c5643a1f9e2b1049e0c8b321a94f876e5d4c3b2a1f` | *(Preprod offline)* | Preprod offline |
 
 ### Verify Preview On-Chain
 
@@ -38,13 +38,13 @@ This project is deployed on the **Midnight Preview Testnet**.
 - [Preview Indexer GraphQL](https://indexer.preview.midnight.network/api/v4/graphql)
 - [Preview Faucet Portal](https://faucet.preview.midnight.network/)
 
-### Deployer Wallet (Preprod)
+### Deployer Wallet (Preview)
 
-```
-mn_addr_preprod1qsrk78vxtc9y2neyfh2d7ns3mxxh4xq68pptldmr3atg2d850eusj4n55v
+```text
+mn_addr_preview19dha5fgjrsp0stma4jj5p2jyfq5vusndatljz9y27vlhfdlfm29s7clj20
 ```
 
-Fund this address from the Preprod faucet when deploying or calling from the CLI.
+Funded with 5 NIGHT on Midnight Preview Network.
 
 ---
 

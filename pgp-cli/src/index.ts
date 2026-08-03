@@ -220,7 +220,7 @@ export const run = async (config: Config, testEnv: TestEnvironment, logger: Logg
       privateStateProvider: levelPrivateStateProvider<PrivateStateId, PGPPrivateState>({
         privateStateStoreName: config.privateStateStoreName,
         signingKeyStoreName: `${config.privateStateStoreName}-signing-keys`,
-        privateStoragePasswordProvider: () => 'PGP-Test-2026!',
+        privateStoragePasswordProvider: () => 'PGP-Test-Secret-Password-2026!',
         accountId: seed,
       }),
       publicDataProvider: indexerPublicDataProvider(envConfiguration.indexer, envConfiguration.indexerWS),

@@ -16,9 +16,9 @@ import {
   cancelGiveaway,
 } from '../utils/midnightService.js';
 
-const EMPTY_GIVEAWAY: GiveawayItem = {
-  id: '',
-  contractAddress: '',
+const INITIAL_GIVEAWAY: GiveawayItem = {
+  id: 'pgp-giveaway-1',
+  contractAddress: 'ac4981616db8a8522716b31760c97543a75520f7a9f28a1e3078166b7080ce2d',
   title: 'No contract connected',
   prizeDetails: 'Enter a deployed PGP contract address to view on-chain state',
   organizerPk: '',
@@ -32,8 +32,8 @@ const EMPTY_GIVEAWAY: GiveawayItem = {
 
 export function usePGPStore() {
   const [activeTab, setActiveTab] = useState<AppTab>('home');
-  const [contractAddress, setContractAddress] = useState<string>('');
-  const [giveaway, setGiveaway] = useState<GiveawayItem>(EMPTY_GIVEAWAY);
+  const [contractAddress, setContractAddress] = useState<string>('ac4981616db8a8522716b31760c97543a75520f7a9f28a1e3078166b7080ce2d');
+  const [giveaway, setGiveaway] = useState<GiveawayItem>(INITIAL_GIVEAWAY);
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [indexerConnected, setIndexerConnected] = useState<boolean>(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
@@ -124,7 +124,7 @@ export function usePGPStore() {
       stateSubscription.current?.unsubscribe();
       disconnectContract();
       setIndexerConnected(false);
-      setGiveaway(EMPTY_GIVEAWAY);
+      setGiveaway(INITIAL_GIVEAWAY);
     }
   };
 

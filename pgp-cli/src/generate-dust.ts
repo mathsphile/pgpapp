@@ -1,6 +1,7 @@
 // This file is part of midnightntwrk/example-bboard.
 // Copyright (C) Midnight Foundation
 // SPDX-License-Identifier: Apache-2.0
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // You may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -12,8 +13,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-// import { webcrypto } from 'crypto';
 
 import { type WalletFacade } from '@midnight-ntwrk/wallet-sdk-facade';
 import { createKeystore, UnshieldedWalletState } from '@midnight-ntwrk/wallet-sdk-unshielded-wallet';
@@ -53,6 +52,17 @@ export const generateDust = async (
 
   if (utxos.length === 0) {
     logger.info('No unregistered UTXOs found for dust generation.');
+    const currentDust = dustState.balance(new Date());
+    if (currentDust === 0n) {
+      logger.info('Waiting for dust balance to sync from on-chain ledger...');
+      const dustBalance = await rx.firstValueFrom(
+        walletFacade.state().pipe(
+          rx.filter((s) => s.dust.balance(new Date()) > 0n),
+          rx.map((s) => s.dust.balance(new Date())),
+        ),
+      );
+      logger.info(`Dust balance synced: ${dustBalance}`);
+    }
     return;
   }
 
